@@ -17,12 +17,15 @@ public class OkExManualExample {
         StreamingExchangeFactory.INSTANCE.createExchange(OkExStreamingExchange.class.getName());
     exchange.connect().blockingAwait();
 
-    CurrencyPair btcUsdt = new CurrencyPair(new Currency("USDT"), new Currency("BTC"));
+    CurrencyPair btcUsdt = CurrencyPair.BTC_USDT;
+//    ChannelSubscriptionMessage channelForOrderBookMsg = new ChannelSubscriptionMessage(btcUsdt,
+//        "swap", "depth");
+
     ChannelSubscriptionMessage channelForOrderBookMsg = new ChannelSubscriptionMessage(btcUsdt,
-        "spot", "trade");
+        "futures", "depth", "200925");
     exchange
         .getStreamingMarketDataService()
-        .getOrderBook(btcUsdt)
+        .getOrderBook(btcUsdt, channelForOrderBookMsg)
         .subscribe(
             orderBook -> {
               LOG.info("First ask: {}", orderBook.getAsks().get(0));
