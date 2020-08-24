@@ -1,12 +1,14 @@
 package info.bitrich.xchangestream.binance;
 
-import static info.bitrich.xchangestream.binance.BinanceStreamingExchange.USE_CONTRACT_CODE;
+import static info.bitrich.xchangestream.binance.BinanceStreamingExchange.USE_HIGHER_UPDATE_FREQUENCY;
 
 import info.bitrich.xchangestream.core.ProductSubscription;
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import io.reactivex.disposables.Disposable;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.currency.ContractCurrencyPair;
+import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /** Created by Lukas Zaoralek on 15.11.17. */
 public class ContractBinanceManualExample {
   private static final Logger LOG = LoggerFactory.getLogger(ContractBinanceManualExample.class);
-
+  static ContractCurrencyPair BTCUSD_200925 = new ContractCurrencyPair(Currency.BTC, Currency.USD, "201225");
   public static void main(String[] args) throws InterruptedException {
     // Far safer than temporarily adding these to code that might get committed to VCS
     String apiKey = System.getProperty("binance-api-key");
@@ -24,7 +26,7 @@ public class ContractBinanceManualExample {
         StreamingExchangeFactory.INSTANCE
             .createExchange(ContractBinanceStreamingExchange.class.getName())
             .getDefaultExchangeSpecification();
-    spec.setExchangeSpecificParametersItem(USE_CONTRACT_CODE, "201225");
+    spec.setExchangeSpecificParametersItem(USE_HIGHER_UPDATE_FREQUENCY, true);
     spec.setApiKey(apiKey);
     spec.setSecretKey(apiSecret);
     BinanceStreamingExchange exchange =
@@ -34,8 +36,8 @@ public class ContractBinanceManualExample {
         ProductSubscription.create()
 //            .addTicker(CurrencyPair.ETH_BTC)
 //            .addTicker(CurrencyPair.LTC_BTC)
-            .addOrderbook(CurrencyPair.LTC_BTC)
-            .addTrades(CurrencyPair.BTC_USDT)
+            .addOrderbook(BTCUSD_200925)
+            .addTrades(BTCUSD_200925)
             .build();
 
     exchange.connect(subscription).blockingAwait();
@@ -52,14 +54,14 @@ public class ContractBinanceManualExample {
 //                },
 //                throwable -> LOG.error("ERROR in getting ticker: ", throwable));
 
-//    Disposable trades =
-//        exchange
-//            .getStreamingMarketDataService()
-//            .getTrades(CurrencyPair.BTC_USDT)
-//            .subscribe(
-//                trade -> {
-//                  LOG.info("Trade: {}", trade);
-//                });
+    Disposable trades =
+        exchange
+            .getStreamingMarketDataService()
+            .getTrades(BTCUSD_200925)
+            .subscribe(
+                trade -> {
+                  LOG.info("Trade: {}", trade);
+                });
 
     Disposable orderChanges = null;
     Disposable userTrades = null;
@@ -131,7 +133,7 @@ public class ContractBinanceManualExample {
   private static Disposable orderbooks(StreamingExchange exchange, String identifier) {
     return exchange
         .getStreamingMarketDataService()
-        .getOrderBook(CurrencyPair.LTC_BTC)
+        .getOrderBook(BTCUSD_200925)
         .subscribe(
             orderBook -> {
               LOG.info(

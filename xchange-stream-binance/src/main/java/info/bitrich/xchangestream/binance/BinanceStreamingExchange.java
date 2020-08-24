@@ -27,9 +27,6 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
   public  static final String USE_HIGHER_UPDATE_FREQUENCY =
       "Binance_Orderbook_Use_Higher_Frequency";
 
-  public static final String USE_CONTRACT_CODE =
-      "Binance_CONTRACT_CODE";
-
   private BinanceStreamingService streamingService;
   private BinanceUserDataStreamingService userDataStreamingService;
 
@@ -105,15 +102,12 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
       }
     }
 
-    String contractCode = (String)exchangeSpecification.getExchangeSpecificParametersItem(
-        USE_CONTRACT_CODE);
     streamingMarketDataService =
         new BinanceStreamingMarketDataService(
             streamingService,
             (BinanceMarketDataService) marketDataService,
             onApiCall,
-            orderBookUpdateFrequencyParameter,
-            contractCode);
+            orderBookUpdateFrequencyParameter);
     streamingAccountService = new BinanceStreamingAccountService(userDataStreamingService);
     streamingTradeService = new BinanceStreamingTradeService(userDataStreamingService);
 
@@ -212,17 +206,7 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
 
   private String buildSubscriptionStrings(
       List<CurrencyPair> currencyPairs, String subscriptionType) {
-    String contractCode = (String)exchangeSpecification.getExchangeSpecificParametersItem(
-        USE_CONTRACT_CODE);
 
-    if (contractCode != null) {
-      if ("depth".equals(subscriptionType)) {
-        return subscriptionStrings(currencyPairs)
-            .map(s -> "btcusd_" + contractCode + "@" + subscriptionType + orderBookUpdateFrequencyParameter)
-            .collect(Collectors.joining("/"));
-      }
-      return "btcusd_" + contractCode + "@" + subscriptionType;
-    }
     if ("depth".equals(subscriptionType)) {
       return subscriptionStrings(currencyPairs)
           .map(s -> s + "@" + subscriptionType + orderBookUpdateFrequencyParameter)
