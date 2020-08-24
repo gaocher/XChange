@@ -66,6 +66,7 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
 
   private final BinanceStreamingService service;
   private final String orderBookUpdateFrequencyParameter;
+  private String contractNo = null;
 
   private final Map<CurrencyPair, OrderbookSubscription> orderbooks = new HashMap<>();
   private final Map<CurrencyPair, Observable<BinanceTicker24h>> tickerSubscriptions =
@@ -89,6 +90,16 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
     this.orderBookUpdateFrequencyParameter = orderBookUpdateFrequencyParameter;
     this.marketDataService = marketDataService;
     this.onApiCall = onApiCall;
+  }
+
+  public BinanceStreamingMarketDataService(
+      BinanceStreamingService service,
+      BinanceMarketDataService marketDataService,
+      Runnable onApiCall,
+      final String orderBookUpdateFrequencyParameter,
+      String contractNo) {
+    this(service, marketDataService, onApiCall, orderBookUpdateFrequencyParameter);
+    this.contractNo = contractNo;
   }
 
   @Override
@@ -139,6 +150,10 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
   private String channelFromCurrency(CurrencyPair currencyPair, String subscriptionType) {
     String currency = String.join("", currencyPair.toString().split("/")).toLowerCase();
     String currencyChannel = currency + "@" + subscriptionType;
+
+    if (contractNo != null) {
+      currencyChannel = "btcusd" + "_" + contractNo + "@" + subscriptionType;
+    }
 
     if ("depth".equals(subscriptionType)) {
       return currencyChannel + orderBookUpdateFrequencyParameter;
@@ -302,7 +317,9 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
                     lastUpdateId,
                     depth.getFirstUpdateId(),
                     depth.getLastUpdateId());
-                subscription.invalidateSnapshot();
+                //FIXME: fix snapshot
+//                subscription.invalidateSnapshot();
+                subscription.lastUpdateId.set(depth.getLastUpdateId());
               }
               return result;
             })
@@ -342,7 +359,7 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
     return service
         .subscribeChannel(channelFromCurrency(currencyPair, "trade"))
         .map(this::tradeTransaction)
-        .filter(transaction -> transaction.getData().getCurrencyPair().equals(currencyPair))
+        .filter(transaction -> contractNo != null || transaction.getData().getCurrencyPair().equals(currencyPair))
         .map(transaction -> transaction.getData().getRawTrade());
   }
 

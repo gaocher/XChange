@@ -24,8 +24,11 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
 
   private static final Logger LOG = LoggerFactory.getLogger(BinanceStreamingExchange.class);
   private static final String API_BASE_URI = "wss://stream.binance.com:9443/";
-  protected static final String USE_HIGHER_UPDATE_FREQUENCY =
+  public  static final String USE_HIGHER_UPDATE_FREQUENCY =
       "Binance_Orderbook_Use_Higher_Frequency";
+
+  public static final String USE_CONTRACT_CODE =
+      "Binance_CONTRACT_CODE";
 
   private BinanceStreamingService streamingService;
   private BinanceUserDataStreamingService userDataStreamingService;
@@ -102,12 +105,15 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
       }
     }
 
+    String contractCode = (String)exchangeSpecification.getExchangeSpecificParametersItem(
+        USE_CONTRACT_CODE);
     streamingMarketDataService =
         new BinanceStreamingMarketDataService(
             streamingService,
             (BinanceMarketDataService) marketDataService,
             onApiCall,
-            orderBookUpdateFrequencyParameter);
+            orderBookUpdateFrequencyParameter,
+            contractCode);
     streamingAccountService = new BinanceStreamingAccountService(userDataStreamingService);
     streamingTradeService = new BinanceStreamingTradeService(userDataStreamingService);
 
@@ -190,7 +196,7 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
     return streamingTradeService;
   }
 
-  private BinanceStreamingService createStreamingService(ProductSubscription subscription) {
+  protected BinanceStreamingService createStreamingService(ProductSubscription subscription) {
     String path = API_BASE_URI + "stream?streams=" + buildSubscriptionStreams(subscription);
     return new BinanceStreamingService(path, subscription);
   }
@@ -206,6 +212,17 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
 
   private String buildSubscriptionStrings(
       List<CurrencyPair> currencyPairs, String subscriptionType) {
+    String contractCode = (String)exchangeSpecification.getExchangeSpecificParametersItem(
+        USE_CONTRACT_CODE);
+
+    if (contractCode != null) {
+      if ("depth".equals(subscriptionType)) {
+        return subscriptionStrings(currencyPairs)
+            .map(s -> "btcusd_" + contractCode + "@" + subscriptionType + orderBookUpdateFrequencyParameter)
+            .collect(Collectors.joining("/"));
+      }
+      return "btcusd_" + contractCode + "@" + subscriptionType;
+    }
     if ("depth".equals(subscriptionType)) {
       return subscriptionStrings(currencyPairs)
           .map(s -> s + "@" + subscriptionType + orderBookUpdateFrequencyParameter)
