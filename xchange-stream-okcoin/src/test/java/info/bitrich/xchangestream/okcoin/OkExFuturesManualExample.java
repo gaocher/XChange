@@ -25,24 +25,24 @@ public class OkExFuturesManualExample {
               LOG.info("First bid: {}", orderBook.getBids().get(0));
             },
             throwable -> LOG.error("ERROR in getting order book: ", throwable));
-
-    exchange
-        .getStreamingMarketDataService()
-        .getTicker(CurrencyPair.BTC_USD, FuturesContract.Quarter)
-        .subscribe(
-            ticker -> {
-              LOG.info("TICKER: {}", ticker);
-            },
-            throwable -> LOG.error("ERROR in getting ticker: ", throwable));
-
-    exchange
-        .getStreamingMarketDataService()
-        .getTrades(CurrencyPair.BTC_USD, FuturesContract.Quarter)
-        .subscribe(
-            trade -> {
-              LOG.info("TRADE: {}", trade);
-            },
-            throwable -> LOG.error("ERROR in getting trades: ", throwable));
+//
+//    exchange
+//        .getStreamingMarketDataService()
+//        .getTicker(CurrencyPair.BTC_USD, FuturesContract.Quarter)
+//        .subscribe(
+//            ticker -> {
+//              LOG.info("TICKER: {}", ticker);
+//            },
+//            throwable -> LOG.error("ERROR in getting ticker: ", throwable));
+//
+//    exchange
+//        .getStreamingMarketDataService()
+//        .getTrades(CurrencyPair.BTC_USD, FuturesContract.Quarter)
+//        .subscribe(
+//            trade -> {
+//              LOG.info("TRADE: {}", trade);
+//            },
+//            throwable -> LOG.error("ERROR in getting trades: ", throwable));
 
     try {
       Thread.sleep(10000);

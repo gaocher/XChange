@@ -1,5 +1,6 @@
 package info.bitrich.xchangestream.okcoin.dto;
 
+import info.bitrich.xchangestream.okcoin.dto.marketdata.OkExMarketDataMessage.DataNode;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.ParseException;

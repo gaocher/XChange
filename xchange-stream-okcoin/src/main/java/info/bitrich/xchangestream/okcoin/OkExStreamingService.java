@@ -1,10 +1,10 @@
 package info.bitrich.xchangestream.okcoin;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import info.bitrich.xchangestream.okcoin.dto.WebSocketMessage;
-import info.bitrich.xchangestream.service.netty.JsonNettyStreamingService;
-import info.bitrich.xchangestream.service.netty.StreamingObjectMapperHelper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import info.bitrich.xchangestream.okcoin.dto.OkExSocketMessage;
+import info.bitrich.xchangestream.okcoin.dto.marketdata.OkExMarketDataMessage;
+import info.bitrich.xchangestream.service.netty.NettyStreamingService;
 import info.bitrich.xchangestream.service.netty.WebSocketClientHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
@@ -23,14 +23,20 @@ import org.knowm.xchange.exceptions.ExchangeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class OkCoinStreamingService extends JsonNettyStreamingService {
+public class OkExStreamingService extends NettyStreamingService<OkExMarketDataMessage> {
+  private static final Logger LOG = LoggerFactory.getLogger(OkExStreamingService.class);
 
   private Observable<Long> pingPongSrc = Observable.interval(15, 15, TimeUnit.SECONDS);
 
   private Disposable pingPongSubscription;
 
-  public OkCoinStreamingService(String apiUrl) {
+  public OkExStreamingService(String apiUrl) {
     super(apiUrl);
+  }
+
+  @Override
+  protected String getChannelNameFromMessage(OkExMarketDataMessage message) throws IOException {
+    return message.getChannelName();
   }
 
   @Override
@@ -40,14 +46,14 @@ public class OkCoinStreamingService extends JsonNettyStreamingService {
         (CompletableSource)
             (completable) -> {
               try {
-                if (pingPongSubscription != null && !pingPongSubscription.isDisposed()) {
-                  pingPongSubscription.dispose();
-                }
-                pingPongSubscription =
-                    pingPongSrc.subscribe(
-                        o -> {
-                          this.sendMessage("{\"event\":\"ping\"}");
-                        });
+//                if (pingPongSubscription != null && !pingPongSubscription.isDisposed()) {
+//                  pingPongSubscription.dispose();
+//                }
+//                pingPongSubscription =
+//                    pingPongSrc.subscribe(
+//                        o -> {
+//                          this.sendMessage("ping");
+//                        });
                 completable.onComplete();
               } catch (Exception e) {
                 completable.onError(e);
@@ -56,43 +62,35 @@ public class OkCoinStreamingService extends JsonNettyStreamingService {
   }
 
   @Override
-  protected String getChannelNameFromMessage(JsonNode message) throws IOException {
-    return message.get("channel").asText();
-  }
-
-  @Override
   public String getSubscribeMessage(String channelName, Object... args) throws IOException {
-    WebSocketMessage webSocketMessage = new WebSocketMessage("addChannel", channelName);
-
-    final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
-    return objectMapper.writeValueAsString(webSocketMessage);
+    OkExSocketMessage webSocketMessage = new OkExSocketMessage("subscribe", channelName);
+    return webSocketMessage.getFullString();
   }
 
   @Override
   public String getUnsubscribeMessage(String channelName) throws IOException {
-    WebSocketMessage webSocketMessage = new WebSocketMessage("removeChannel", channelName);
-
-    return objectMapper.writeValueAsString(webSocketMessage);
+    OkExSocketMessage webSocketMessage = new OkExSocketMessage("unsubscribe", channelName);
+    return webSocketMessage.getFullString();
   }
 
   @Override
-  protected void handleMessage(JsonNode message) {
-    if (message.get("event") != null && "pong".equals(message.get("event").asText())) {
-      // ignore pong message
+  public void messageHandler(String message) {
+    LOG.debug("received " + message);
+    if ("pong".equals(message)) {
+      LOG.info("received message: " + message);
       return;
     }
-    if (message.get("data") != null) {
-      if (message.get("data").has("result")) {
-        boolean success = message.get("data").get("result").asBoolean();
-        if (!success) {
-          super.handleError(
-              message,
-              new ExchangeException(
-                  "Error code: " + message.get("data").get("error_code").asText()));
-        }
-        return;
-      }
+    handleMessage(OkExMarketDataMessage.of(message));
+  }
+
+  @Override
+  protected void handleMessage(OkExMarketDataMessage message) {
+    if (message.getEvent() != null) {
+      // ignore pong message
+      LOG.info("receive event response {}", message);
+      return;
     }
+
     super.handleMessage(message);
   }
 

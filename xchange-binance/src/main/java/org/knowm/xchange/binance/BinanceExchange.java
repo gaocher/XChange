@@ -27,8 +27,8 @@ public class BinanceExchange extends BaseExchange {
   private static ResilienceRegistries RESILIENCE_REGISTRIES;
 
   private BinanceExchangeInfo exchangeInfo;
-  private BinanceAuthenticated binance;
-  private SynchronizedValueFactory<Long> timestampFactory;
+  protected BinanceAuthenticated binance;
+  protected SynchronizedValueFactory<Long> timestampFactory;
 
   @Override
   protected void initServices() {
@@ -104,7 +104,7 @@ public class BinanceExchange extends BaseExchange {
         currencies.clear();
       }
       for (Symbol symbol : symbols) {
-        if (symbol.getStatus().equals("TRADING")) { // Symbols which are trading
+//        if (symbol.getStatus().equals("TRADING")) { // Symbols which are trading
           int basePrecision = Integer.parseInt(symbol.getBaseAssetPrecision());
           int counterPrecision = Integer.parseInt(symbol.getQuotePrecision());
           int pairPrecision = 8;
@@ -165,7 +165,7 @@ public class BinanceExchange extends BaseExchange {
                   currencies, counterCurrency, assetDetailMap, counterPrecision);
           currencies.put(counterCurrency, counterCurrencyMetaData);
         }
-      }
+//      }
     } catch (Exception e) {
       throw new ExchangeException("Failed to initialize: " + e.getMessage(), e);
     }
