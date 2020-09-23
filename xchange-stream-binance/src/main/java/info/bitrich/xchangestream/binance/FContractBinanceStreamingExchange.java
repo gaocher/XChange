@@ -1,5 +1,7 @@
 package info.bitrich.xchangestream.binance;
 
+import info.bitrich.xchangestream.binance.BinanceStreamingExchange;
+import info.bitrich.xchangestream.binance.BinanceStreamingService;
 import info.bitrich.xchangestream.core.ProductSubscription;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.binance.Binance;
