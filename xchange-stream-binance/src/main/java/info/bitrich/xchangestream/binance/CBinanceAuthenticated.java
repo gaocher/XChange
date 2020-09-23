@@ -1,4 +1,4 @@
-package org.knowm.xchange.binance;
+package info.bitrich.xchangestream.binance;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -15,8 +15,18 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import org.knowm.xchange.binance.BinanceAuthenticated;
 import org.knowm.xchange.binance.dto.BinanceException;
-import org.knowm.xchange.binance.dto.account.*;
+import org.knowm.xchange.binance.dto.account.AssetDetailResponse;
+import org.knowm.xchange.binance.dto.account.AssetDividendResponse;
+import org.knowm.xchange.binance.dto.account.AssetDribbletLogResponse;
+import org.knowm.xchange.binance.dto.account.BinanceAccountInformation;
+import org.knowm.xchange.binance.dto.account.DepositAddress;
+import org.knowm.xchange.binance.dto.account.DepositList;
+import org.knowm.xchange.binance.dto.account.TransferHistoryResponse;
+import org.knowm.xchange.binance.dto.account.TransferSubUserHistory;
+import org.knowm.xchange.binance.dto.account.WithdrawList;
+import org.knowm.xchange.binance.dto.account.WithdrawRequest;
 import org.knowm.xchange.binance.dto.trade.BinanceCancelledOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceListenKey;
 import org.knowm.xchange.binance.dto.trade.BinanceNewOrder;
@@ -30,13 +40,13 @@ import si.mazi.rescu.SynchronizedValueFactory;
 
 @Path("")
 @Produces(MediaType.APPLICATION_JSON)
-public interface BinanceAuthenticated extends Binance {
+public interface CBinanceAuthenticated extends CBinance, BinanceAuthenticated {
 
   String SIGNATURE = "signature";
   String X_MBX_APIKEY = "X-MBX-APIKEY";
 
   @POST
-  @Path("api/v3/order")
+  @Path("dapi/v1/order")
   /**
    * Send in a new order
    *
@@ -72,8 +82,9 @@ public interface BinanceAuthenticated extends Binance {
       @QueryParam(SIGNATURE) ParamsDigest signature)
       throws IOException, BinanceException;
 
+  @Override
   @POST
-  @Path("api/v3/order/test")
+  @Path("dapi/v1/order/test")
   /**
    * Test new order creation and signature/recvWindow long. Creates and validates a new order but
    * does not send it into the matching engine.
@@ -111,7 +122,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("api/v3/order")
+  @Path("dapi/v1/order")
   /**
    * Check an order's status.<br>
    * Either orderId or origClientOrderId must be sent.
@@ -138,7 +149,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @DELETE
-  @Path("api/v3/order")
+  @Path("dapi/v1/order")
   /**
    * Cancel an active order.
    *
@@ -167,7 +178,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("api/v3/openOrders")
+  @Path("dapi/v1/openOrders")
   /**
    * Get open orders on a symbol.
    *
@@ -187,7 +198,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("api/v3/allOrders")
+  @Path("dapi/v1/allOrders")
   /**
    * Get all account orders; active, canceled, or filled. <br>
    * If orderId is set, it will get orders >= that orderId. Otherwise most recent orders are
@@ -215,7 +226,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("api/v3/account")
+  @Path("dapi/v1/account")
   /**
    * Get current account information.
    *
@@ -233,7 +244,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("api/v3/myTrades")
+  @Path("dapi/v1/myTrades")
   /**
    * Get trades for a specific account and symbol.
    *
@@ -263,7 +274,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @POST
-  @Path("wapi/v3/withdraw.html")
+  @Path("wdapi/v1/withdraw.html")
   /**
    * Submit a withdraw request.
    *
@@ -293,7 +304,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("wapi/v3/depositHistory.html")
+  @Path("wdapi/v1/depositHistory.html")
   /**
    * Fetch deposit history.
    *
@@ -319,7 +330,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("wapi/v3/withdrawHistory.html")
+  @Path("wdapi/v1/withdrawHistory.html")
   /**
    * Fetch withdraw history.
    *
@@ -356,7 +367,7 @@ public interface BinanceAuthenticated extends Binance {
    * @throws BinanceException
    */
   @GET
-  @Path("/wapi/v3/userAssetDribbletLog.html")
+  @Path("/wdapi/v1/userAssetDribbletLog.html")
   AssetDribbletLogResponse userAssetDribbletLog(
       @QueryParam("recvWindow") Long recvWindow,
       @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
@@ -379,7 +390,7 @@ public interface BinanceAuthenticated extends Binance {
    * @throws BinanceException
    */
   @GET
-  @Path("/sapi/v1/asset/assetDividend")
+  @Path("/sdapi/v1/asset/assetDividend")
   AssetDividendResponse assetDividend(
       @QueryParam("asset") String asset,
       @QueryParam("startTime") Long startTime,
@@ -391,7 +402,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("/wapi/v3/sub-account/transfer/history.html")
+  @Path("/wdapi/v1/sub-account/transfer/history.html")
   TransferHistoryResponse transferHistory(
       @QueryParam("email") String email,
       @QueryParam("startTime") Long startTime,
@@ -405,7 +416,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("/sapi/v1/sub-account/transfer/subUserHistory")
+  @Path("/sdapi/v1/sub-account/transfer/subUserHistory")
   List<TransferSubUserHistory> transferSubUserHistory(
       @QueryParam("asset") String asset,
       @QueryParam("type") Integer type,
@@ -419,7 +430,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("wapi/v3/depositAddress.html")
+  @Path("wdapi/v1/depositAddress.html")
   /**
    * Fetch deposit address.
    *
@@ -441,7 +452,7 @@ public interface BinanceAuthenticated extends Binance {
       throws IOException, BinanceException;
 
   @GET
-  @Path("wapi/v3/assetDetail.html")
+  @Path("wdapi/v1/assetDetail.html")
   /**
    * Fetch asset details.
    *
@@ -469,7 +480,7 @@ public interface BinanceAuthenticated extends Binance {
    * @throws IOException
    */
   @POST
-  @Path("/api/v1/userDataStream")
+  @Path("/dapi/v1/userDataStream")
   BinanceListenKey startUserDataStream(@HeaderParam(X_MBX_APIKEY) String apiKey)
       throws IOException, BinanceException;
 
@@ -483,7 +494,7 @@ public interface BinanceAuthenticated extends Binance {
    * @throws IOException
    */
   @PUT
-  @Path("/api/v1/userDataStream?listenKey={listenKey}")
+  @Path("/dapi/v1/userDataStream?listenKey={listenKey}")
   Map<?, ?> keepAliveUserDataStream(
       @HeaderParam(X_MBX_APIKEY) String apiKey, @PathParam("listenKey") String listenKey)
       throws IOException, BinanceException;
@@ -498,7 +509,7 @@ public interface BinanceAuthenticated extends Binance {
    * @throws IOException
    */
   @DELETE
-  @Path("/api/v1/userDataStream?listenKey={listenKey}")
+  @Path("/dapi/v1/userDataStream?listenKey={listenKey}")
   Map<?, ?> closeUserDataStream(
       @HeaderParam(X_MBX_APIKEY) String apiKey, @PathParam("listenKey") String listenKey)
       throws IOException, BinanceException;

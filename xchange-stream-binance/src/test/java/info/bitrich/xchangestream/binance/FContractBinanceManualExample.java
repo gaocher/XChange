@@ -8,6 +8,8 @@ import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import io.reactivex.disposables.Disposable;
 import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.service.trade.TradeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +41,8 @@ public class FContractBinanceManualExample {
             .build();
 
     exchange.connect(subscription).blockingAwait();
+
+    TradeService tradeService = exchange.getTradeService();
 
     LOG.info("Subscribing public channels");
 
@@ -143,7 +147,7 @@ public class FContractBinanceManualExample {
                   orderBook.getBids().size(),
                   orderBook.getBids().get(0).getLimitPrice(),
                   orderBook.getBids().get(0).getRemainingAmount());
-            },
+              },
             throwable -> LOG.error("ERROR in getting order book: ", throwable));
   }
 }

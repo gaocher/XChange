@@ -6,10 +6,21 @@ import info.bitrich.xchangestream.core.ProductSubscription;
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import io.reactivex.disposables.Disposable;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Collection;
 import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.binance.dto.trade.TimeInForce;
+import org.knowm.xchange.binance.service.BinanceCancelOrderParams;
 import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.Order.OrderType;
+import org.knowm.xchange.dto.marketdata.OrderBook;
+import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.dto.trade.LimitOrder.Builder;
+import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamCurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,10 +28,13 @@ import org.slf4j.LoggerFactory;
 public class ContractBinanceManualExample {
   private static final Logger LOG = LoggerFactory.getLogger(ContractBinanceManualExample.class);
   static ContractCurrencyPair BTCUSD_200925 = new ContractCurrencyPair(Currency.BTC, Currency.USD, "201225");
-  public static void main(String[] args) throws InterruptedException {
+  public static void main(String[] args) throws InterruptedException, IOException {
     // Far safer than temporarily adding these to code that might get committed to VCS
     String apiKey = System.getProperty("binance-api-key");
     String apiSecret = System.getProperty("binance-api-secret");
+
+    apiKey = "9cxwWaYAEcvVRqYrLoCNKwjBgB2ipzPUk0rrJmgDJeaIJhLVnz9p37ljWoeAQVNb";
+    apiSecret = "acJsbXrAcGhhhQbuSkbCdWwjz1SEWZN3LrK8EznWZtrWseX00EZ7D70VCueP2DGG";
 
     ExchangeSpecification spec =
         StreamingExchangeFactory.INSTANCE
@@ -40,8 +54,43 @@ public class ContractBinanceManualExample {
             .addTrades(BTCUSD_200925)
             .build();
 
+    long start = System.currentTimeMillis();
+    OrderBook orderBook = exchange.getMarketDataService().getOrderBook(BTCUSD_200925);
+    LOG.info("orderbook {} {}ms", orderBook, System.currentTimeMillis() - start);
+
+     start = System.currentTimeMillis();
+     orderBook = exchange.getMarketDataService().getOrderBook(BTCUSD_200925);
+    LOG.info("orderbook {} {}ms", orderBook, System.currentTimeMillis() - start);
+
+
     exchange.connect(subscription).blockingAwait();
 
+
+
+    LimitOrder build = new Builder(OrderType.ASK, BTCUSD_200925)
+        .limitPrice(BigDecimal.valueOf(11400))
+        .originalAmount(BigDecimal.ONE).build();
+
+//    try {
+//      long start = System.currentTimeMillis();
+//      build.getOrderFlags().add(TimeInForce.GTX);
+//      String orderId = exchange.getTradeService().placeLimitOrder(build);
+//      LOG.info("order id {} {}ms",orderId, System.currentTimeMillis() - start);
+//
+//      start = System.currentTimeMillis();
+//      DefaultQueryOrderParamCurrencyPair defaultQueryOrderParamCurrencyPair = new DefaultQueryOrderParamCurrencyPair(BTCUSD_200925, orderId);
+//      Collection<Order> order = exchange.getTradeService().getOrder(defaultQueryOrderParamCurrencyPair);
+//      for (Order o : order) {
+//        LOG.info("order {} {}ms", o, System.currentTimeMillis() - start);
+//      }
+//      BinanceCancelOrderParams binanceCancelOrderParams = new BinanceCancelOrderParams(
+//          BTCUSD_200925, orderId);
+//      start = System.currentTimeMillis();
+//      boolean b = exchange.getTradeService().cancelOrder(binanceCancelOrderParams);
+//      LOG.info("canncel order id {} is {} {}ms",orderId, b, System.currentTimeMillis() - start);
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
     LOG.info("Subscribing public channels");
 
 //    Disposable tickers =
@@ -108,9 +157,10 @@ public class ContractBinanceManualExample {
 //                          "Subscriber got account Info (not printing, often causes console issues in IDEs)"));
 //    }
 //
+
     Disposable orderbooks = orderbooks(exchange, "one");
-    Thread.sleep(5000);
-    Disposable orderbooks2 = orderbooks(exchange, "two");
+//    Thread.sleep(5000);
+//    Disposable orderbooks2 = orderbooks(exchange, "two");
 //
 //    Thread.sleep(1000000);
 
@@ -137,7 +187,8 @@ public class ContractBinanceManualExample {
         .subscribe(
             orderBook -> {
               LOG.info(
-                  "Order Book ({}): askDepth={} ask={} askSize={} bidDepth={}. bid={}, bidSize={}",
+                  "Order Book {}ms({}): askDepth={} ask={} askSize={} bidDepth={}. bid={}, bidSize={}",
+                  System.currentTimeMillis() - orderBook.getTimeStamp().getTime(),
                   identifier,
                   orderBook.getAsks().size(),
                   orderBook.getAsks().get(0).getLimitPrice(),

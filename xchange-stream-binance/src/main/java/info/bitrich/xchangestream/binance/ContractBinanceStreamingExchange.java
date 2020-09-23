@@ -42,17 +42,13 @@ public class ContractBinanceStreamingExchange extends BinanceStreamingExchange {
     super.initServices();
     this.binance =
         ExchangeRestProxyBuilder.forInterface(
-            CBinance.class, getCustomizedExchangeSpecification())
+            CBinanceAuthenticated.class, getCustomizedExchangeSpecification())
             .build();
-
-    BinanceAuthenticated binanceAccount = ExchangeRestProxyBuilder.forInterface(
-        BinanceAuthenticated.class, getExchangeSpecification())
-        .build();
     this.timestampFactory =
         new BinanceTimestampFactory(
             binance, getExchangeSpecification().getResilience(), getResilienceRegistries());
     this.marketDataService = new BinanceMarketDataService(this, binance, getResilienceRegistries());
     this.tradeService = new BinanceTradeService(this, binance, getResilienceRegistries());
-    this.accountService = new BinanceAccountService(this, binanceAccount, getResilienceRegistries());
+    this.accountService = new BinanceAccountService(this, binance, getResilienceRegistries());
   }
 }
