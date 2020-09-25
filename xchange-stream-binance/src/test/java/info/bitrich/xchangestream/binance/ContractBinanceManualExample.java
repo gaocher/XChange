@@ -71,26 +71,26 @@ public class ContractBinanceManualExample {
         .limitPrice(BigDecimal.valueOf(11400))
         .originalAmount(BigDecimal.ONE).build();
 
-//    try {
-//      long start = System.currentTimeMillis();
-//      build.getOrderFlags().add(TimeInForce.GTX);
-//      String orderId = exchange.getTradeService().placeLimitOrder(build);
-//      LOG.info("order id {} {}ms",orderId, System.currentTimeMillis() - start);
-//
-//      start = System.currentTimeMillis();
-//      DefaultQueryOrderParamCurrencyPair defaultQueryOrderParamCurrencyPair = new DefaultQueryOrderParamCurrencyPair(BTCUSD_200925, orderId);
-//      Collection<Order> order = exchange.getTradeService().getOrder(defaultQueryOrderParamCurrencyPair);
-//      for (Order o : order) {
-//        LOG.info("order {} {}ms", o, System.currentTimeMillis() - start);
-//      }
-//      BinanceCancelOrderParams binanceCancelOrderParams = new BinanceCancelOrderParams(
-//          BTCUSD_200925, orderId);
-//      start = System.currentTimeMillis();
-//      boolean b = exchange.getTradeService().cancelOrder(binanceCancelOrderParams);
-//      LOG.info("canncel order id {} is {} {}ms",orderId, b, System.currentTimeMillis() - start);
-//    } catch (IOException e) {
-//      e.printStackTrace();
-//    }
+    try {
+      start = System.currentTimeMillis();
+      build.getOrderFlags().add(TimeInForce.GTX);
+      String orderId = exchange.getTradeService().placeLimitOrder(build);
+      LOG.info("order id {} {}ms",orderId, System.currentTimeMillis() - start);
+
+      start = System.currentTimeMillis();
+      DefaultQueryOrderParamCurrencyPair defaultQueryOrderParamCurrencyPair = new DefaultQueryOrderParamCurrencyPair(BTCUSD_200925, orderId);
+      Collection<Order> order = exchange.getTradeService().getOrder(defaultQueryOrderParamCurrencyPair);
+      for (Order o : order) {
+        LOG.info("order {} {}ms", o, System.currentTimeMillis() - start);
+      }
+      BinanceCancelOrderParams binanceCancelOrderParams = new BinanceCancelOrderParams(
+          BTCUSD_200925, orderId);
+      start = System.currentTimeMillis();
+      boolean b = exchange.getTradeService().cancelOrder(binanceCancelOrderParams);
+      LOG.info("canncel order id {} is {} {}ms",orderId, b, System.currentTimeMillis() - start);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
     LOG.info("Subscribing public channels");
 
 //    Disposable tickers =
