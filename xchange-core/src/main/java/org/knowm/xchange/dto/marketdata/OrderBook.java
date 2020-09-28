@@ -100,6 +100,14 @@ public class OrderBook implements Serializable {
     }
   }
 
+  public BigDecimal getAskOnePrice() {
+    return asks.get(0).getLimitPrice();
+  }
+
+  public BigDecimal getBidOnePrice() {
+    return bids.get(0).getLimitPrice();
+  }
+
   // Returns a copy of limitOrder with tradeableAmount replaced.
   private static LimitOrder withAmount(LimitOrder limitOrder, BigDecimal tradeableAmount) {
 
