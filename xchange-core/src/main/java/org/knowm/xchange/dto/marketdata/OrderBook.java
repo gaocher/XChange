@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -106,6 +107,10 @@ public class OrderBook implements Serializable {
 
   public BigDecimal getBidOnePrice() {
     return bids.get(0).getLimitPrice();
+  }
+
+  public OrderBook copyToFirstPriceOne() {
+    return new OrderBook(getTimeStamp(), Arrays.asList(asks.get(0)), Arrays.asList(bids.get(0)));
   }
 
   // Returns a copy of limitOrder with tradeableAmount replaced.

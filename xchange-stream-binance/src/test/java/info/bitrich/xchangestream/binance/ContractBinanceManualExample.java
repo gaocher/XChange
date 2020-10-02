@@ -63,12 +63,12 @@ public class ContractBinanceManualExample {
     LOG.info("orderbook {} {}ms", orderBook, System.currentTimeMillis() - start);
 
 
-    exchange.connect(subscription).blockingAwait();
+//    exchange.connect(subscription).blockingAwait();
 
 
 
     LimitOrder build = new Builder(OrderType.ASK, BTCUSD_200925)
-        .limitPrice(BigDecimal.valueOf(11400))
+        .limitPrice(BigDecimal.valueOf(10400))
         .originalAmount(BigDecimal.ONE).build();
 
     try {
