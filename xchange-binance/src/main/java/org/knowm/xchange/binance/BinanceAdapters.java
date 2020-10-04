@@ -148,7 +148,11 @@ public class BinanceAdapters {
         .id(Long.toString(order.orderId))
         .timestamp(order.getTime())
         .cumulativeAmount(order.executedQty);
-    if (order.executedQty.signum() != 0 && order.cummulativeQuoteQty.signum() != 0) {
+    if (order.cummulativeQuoteQty == null) {
+      if (order.avgPrice != null) {
+        builder.averagePrice(order.avgPrice);
+      }
+    } else if (order.executedQty.signum() != 0 && order.cummulativeQuoteQty.signum() != 0) {
       builder.averagePrice(
           order.cummulativeQuoteQty.divide(order.executedQty, MathContext.DECIMAL32));
     }
