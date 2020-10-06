@@ -34,23 +34,13 @@ public class OkExManualExample {
   static ContractCurrencyPair BTCUSD_200925 = new ContractCurrencyPair(Currency.BTC, Currency.USD, "201225");
 
   public static void main(String[] args) {
-    ExchangeSpecification spec = new ExchangeSpecification(OkExStreamingExchange.class.getName());
-    spec.setSslUri("https://www.okex.com");
-    spec.setHost("www.okex.com");
-    spec.setExchangeName("OKEx");
-    spec.setExchangeDescription("OKEx is a globally oriented crypto-currency trading platform.");
+
+    ExchangeSpecification spec =
+        StreamingExchangeFactory.INSTANCE
+            .createExchange(OkExStreamingExchange.class.getName())
+            .getDefaultExchangeSpecification();
     spec.setExchangeSpecificParametersItem(USE_FUTURES_SPEC_ITEM, true);
-
-    String apiKey = "39b32509-ce38-44dd-b612-fe9798ca60b4";
-    String secretKey = "A795499B9AB1417FD406DEF18BC65D05";
-    String passPhrase = "TYBgch007";
-    spec.setExchangeSpecificParametersItem("passphrase", passPhrase);
-    spec.setApiKey(apiKey);
-    spec.setSecretKey(secretKey);
-
-    StreamingExchange exchange =
-        StreamingExchangeFactory.INSTANCE.createExchange(spec);
-
+    StreamingExchange exchange = StreamingExchangeFactory.INSTANCE.createExchange(spec);
 
 //    exchange.connect().blockingAwait();
 

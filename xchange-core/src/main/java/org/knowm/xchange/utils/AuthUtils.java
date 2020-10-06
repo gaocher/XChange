@@ -39,6 +39,7 @@ public class AuthUtils {
     if (props != null) {
       exchangeSpec.setApiKey(props.getProperty("apiKey"));
       exchangeSpec.setSecretKey(props.getProperty("secretKey"));
+      exchangeSpec.setExchangeSpecificParametersItem("passphrase", props.getProperty("passPhrase"));
     }
   }
 

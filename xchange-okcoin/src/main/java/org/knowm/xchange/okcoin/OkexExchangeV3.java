@@ -7,6 +7,7 @@ import org.knowm.xchange.okcoin.v3.service.OkexAccountService;
 import org.knowm.xchange.okcoin.v3.service.OkexFutureTradeService;
 import org.knowm.xchange.okcoin.v3.service.OkexMarketDataService;
 import org.knowm.xchange.okcoin.v3.service.OkexTradeService;
+import org.knowm.xchange.utils.AuthUtils;
 import si.mazi.rescu.SynchronizedValueFactory;
 
 public class OkexExchangeV3 extends BaseExchange {
@@ -14,7 +15,9 @@ public class OkexExchangeV3 extends BaseExchange {
 
   @Override
   protected void initServices() {
-    if (exchangeSpecification.getExchangeSpecificParametersItem(USE_FUTURES_SPEC_ITEM).equals(true)) {
+    Object userFutures = exchangeSpecification
+        .getExchangeSpecificParametersItem(USE_FUTURES_SPEC_ITEM);
+    if (userFutures != null && userFutures.equals(true)) {
       this.marketDataService = null;
       this.accountService = null;
       this.tradeService = new OkexFutureTradeService(this);
@@ -32,6 +35,7 @@ public class OkexExchangeV3 extends BaseExchange {
     spec.setHost("www.okex.com");
     spec.setExchangeName("OKEx");
     spec.setExchangeDescription("OKEx is a globally oriented crypto-currency trading platform.");
+    AuthUtils.setApiAndSecretKey(spec, "okex");
     return spec;
   }
 
