@@ -3,6 +3,7 @@ package org.knowm.xchange.binance.dto.trade;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 import java.util.Date;
+import org.knowm.xchange.dto.TimeInForce;
 
 public final class BinanceOrder {
 

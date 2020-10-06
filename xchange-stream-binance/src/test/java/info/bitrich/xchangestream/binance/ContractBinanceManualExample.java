@@ -10,13 +10,14 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Collection;
 import org.knowm.xchange.ExchangeSpecification;
-import org.knowm.xchange.binance.dto.trade.TimeInForce;
+
 import org.knowm.xchange.binance.service.BinanceCancelOrderParams;
 import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
+import org.knowm.xchange.dto.TimeInForce;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.LimitOrder.Builder;
