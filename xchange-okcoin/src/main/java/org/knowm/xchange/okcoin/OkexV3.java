@@ -44,6 +44,7 @@ import org.knowm.xchange.okcoin.v3.dto.trade.MarginBorrowResponse;
 import org.knowm.xchange.okcoin.v3.dto.trade.MarginRepaymentRequest;
 import org.knowm.xchange.okcoin.v3.dto.trade.MarginRepaymentResponse;
 import org.knowm.xchange.okcoin.v3.dto.trade.MarginSetLeverageRequest;
+import org.knowm.xchange.okcoin.v3.dto.trade.OkexFuturesOpenOrder;
 import org.knowm.xchange.okcoin.v3.dto.trade.OkexFuturesTransaction;
 import org.knowm.xchange.okcoin.v3.dto.trade.OkexOpenOrder;
 import org.knowm.xchange.okcoin.v3.dto.trade.OkexResponse;
@@ -382,6 +383,18 @@ public interface OkexV3 {
       @QueryParam("limit") Integer limit,
       @QueryParam("state") String state)
       throws IOException, OkexException;
+
+  @GET
+  @Path("/futures/v3/orders/{instrument_id}/{order_id}")
+  OkexFuturesOpenOrder getFuturesOrderDetails(
+      @HeaderParam(OK_ACCESS_KEY) String apiKey,
+      @HeaderParam(OK_ACCESS_SIGN) ParamsDigest signature,
+      @HeaderParam(OK_ACCESS_TIMESTAMP) String timestamp,
+      @HeaderParam(OK_ACCESS_PASSPHRASE) String passphrase,
+      @PathParam("instrument_id") String instrumentId,
+      @PathParam("order_id") String orderId)
+      throws IOException, OkexException;
+
 
   @POST
   @Path("/futures/v3/order")

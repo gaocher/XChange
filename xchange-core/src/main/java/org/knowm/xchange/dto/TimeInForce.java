@@ -1,13 +1,13 @@
-package org.knowm.xchange.binance.dto.trade;
+package org.knowm.xchange.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import org.knowm.xchange.dto.Order.IOrderFlags;
 
 public enum TimeInForce implements IOrderFlags {
-  GTC,
+  GTC, //normal
   FOK,
   IOC,
-  GTX;
+  GTX; //只做maker
 
   @JsonCreator
   public static TimeInForce getTimeInForce(String s) {

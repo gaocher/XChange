@@ -464,6 +464,11 @@ public abstract class Order implements Serializable {
   @JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.WRAPPER_OBJECT)
   public interface IOrderFlags {}
 
+  public enum PositionOrderFlags implements IOrderFlags {
+    OPEN_POSITION,
+    CLOSE_POSITION;
+  }
+
   public abstract static class Builder {
 
     protected final Set<IOrderFlags> flags = new HashSet<>();

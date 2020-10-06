@@ -1,9 +1,12 @@
 package org.knowm.xchange.okcoin;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.Order.OrderStatus;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.FundingRecord;
@@ -13,6 +16,7 @@ import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.exceptions.ExchangeException;
+import org.knowm.xchange.instrument.Instrument;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexDepositRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexFundingAccountRecord;
 import org.knowm.xchange.okcoin.v3.dto.account.OkexSpotAccountRecord;
@@ -21,6 +25,7 @@ import org.knowm.xchange.okcoin.v3.dto.marketdata.OkexOrderBook;
 import org.knowm.xchange.okcoin.v3.dto.marketdata.OkexOrderBookEntry;
 import org.knowm.xchange.okcoin.v3.dto.marketdata.OkexSpotTicker;
 import org.knowm.xchange.okcoin.v3.dto.trade.FuturesAccountsResponse.FuturesAccount;
+import org.knowm.xchange.okcoin.v3.dto.trade.OkexFuturesOpenOrder;
 import org.knowm.xchange.okcoin.v3.dto.trade.OkexOpenOrder;
 import org.knowm.xchange.okcoin.v3.dto.trade.Side;
 import org.knowm.xchange.okcoin.v3.dto.trade.SwapAccountsResponse.SwapAccountInfo;
@@ -63,6 +68,15 @@ public class OkexAdaptersV3 {
     return pair == null ? null : pair.base.getCurrencyCode() + "-" + pair.counter.getCurrencyCode();
   }
 
+  public static String toInstrument(Instrument pair) {
+    if (pair instanceof ContractCurrencyPair) {
+      return ((ContractCurrencyPair) pair).base.getCurrencyCode() + "-" + ((ContractCurrencyPair) pair).counter.getCurrencyCode() + "-" + ((ContractCurrencyPair) pair).getContractNo();
+    } else if (pair instanceof CurrencyPair) {
+      return ((CurrencyPair) pair).base.getCurrencyCode() + "-" + ((CurrencyPair) pair).counter.getCurrencyCode();
+    }
+    throw new IllegalArgumentException("Illegal instrument " + pair);
+  }
+
   /**
    * there are different types of instruments: spot (ie 'ETH-BTC'), future (ie 'BCH-USD-190927'),
    * swap (ie 'ETH-USD-SWAP')
@@ -74,6 +88,9 @@ public class OkexAdaptersV3 {
     String[] split = instrument.split("-");
     if (split == null || split.length < 2) {
       throw new ExchangeException("Not supported instrument: " + instrument);
+    }
+    if (split.length == 3) {
+      return new ContractCurrencyPair(split[0], split[1], split[2]);
     }
     return new CurrencyPair(split[0], split[1]);
   }
@@ -97,6 +114,55 @@ public class OkexAdaptersV3 {
         .limitPrice(o.getPrice())
         .originalAmount(o.getSize())
         .timestamp(o.getCreatedAt())
+        .build();
+  }
+
+  public static OrderStatus convertOrderStatus(String orderState) {
+    /**
+     * -2：失败
+     * -1：撤单成功
+     * 0：等待成交
+     * 1：部分成交
+     * 2：完全成交
+     * 3：下单中
+     * 4：撤单中
+     *   /**
+     *    * Order Status("-2":Failed,"-1":Cancelled,"0":Open ,"1":Partially Filled, "2":Fully
+     *    * Filled,"3":Submitting,"4":Cancelling,）
+     *
+     *    */
+
+    switch (orderState) {
+      case "-2":
+        return OrderStatus.EXPIRED;
+      case "-1":
+        return OrderStatus.CANCELED;
+      case "0":
+        return OrderStatus.NEW;
+      case "1":
+        return OrderStatus.PARTIALLY_FILLED;
+      case "2":
+        return OrderStatus.FILLED;
+      case "3":
+        return OrderStatus.PENDING_NEW;
+      case "4":
+        return OrderStatus.PENDING_CANCEL;
+    }
+    throw new IllegalArgumentException("unsupport the order statue " + orderState);
+  }
+
+  public static LimitOrder convert(OkexFuturesOpenOrder o) {
+    OrderStatus orderStatus = convertOrderStatus(o.getState());
+    return new LimitOrder.Builder(
+        o.getType().sell() ? OrderType.ASK : OrderType.BID,
+        toPair(o.getInstrumentId()))
+        .id(o.getOrderId())
+        .limitPrice(o.getPrice())
+        .originalAmount(o.getSize())
+        .timestamp(o.getTimestamp())
+        .fee(new BigDecimal(o.getFee()))
+        .averagePrice(o.getPriceAvg())
+        .orderStatus(orderStatus)
         .build();
   }
 

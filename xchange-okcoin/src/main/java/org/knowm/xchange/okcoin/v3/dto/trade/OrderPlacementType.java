@@ -14,7 +14,8 @@ public enum OrderPlacementType {
   normal("0"),
   post_only("1"),
   fill_or_kill("2"),
-  immediate_or_cancel("3");
+  immediate_or_cancel("3"),
+  market_price("4");
 
   private final String value;
 

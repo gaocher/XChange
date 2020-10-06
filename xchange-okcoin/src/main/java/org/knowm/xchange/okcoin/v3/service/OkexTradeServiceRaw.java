@@ -78,6 +78,9 @@ public class OkexTradeServiceRaw extends OkexBaseService {
   }
 
   /** ******************************** Futures Trading API ********************************* */
+  public OkexFuturesOpenOrder getFuturesOrderDetails(String orderId, String instrumentId) throws IOException {
+    return okex.getFuturesOrderDetails(apikey, digest, timestamp(), passphrase, instrumentId, orderId);
+  }
   public List<OkexFuturesOpenOrder> getFuturesOrderList(
       String instrumentId, String from, String to, Integer limit, String state) throws IOException {
     FuturesOpenOrdersResponse res =

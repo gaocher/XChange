@@ -1,21 +1,93 @@
 package info.bitrich.xchangestream.okcoin;
 
+import static org.knowm.xchange.dto.Order.PositionOrderFlags.CLOSE_POSITION;
+import static org.knowm.xchange.dto.Order.PositionOrderFlags.OPEN_POSITION;
+import static org.knowm.xchange.okcoin.OkexExchangeV3.USE_FUTURES_SPEC_ITEM;
+
 import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import info.bitrich.xchangestream.okcoin.dto.ChannelSubscriptionMessage;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.util.Collection;
+import lombok.extern.slf4j.Slf4j;
+import org.knowm.xchange.ExchangeSpecification;
+import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.Order;
+import org.knowm.xchange.dto.Order.OrderType;
+import org.knowm.xchange.dto.trade.LimitOrder;
+import org.knowm.xchange.dto.trade.LimitOrder.Builder;
+import org.knowm.xchange.okcoin.service.OkCoinTradeService.OkCoinCancelOrderParam;
+import org.knowm.xchange.service.trade.params.CancelOrderByPairAndIdParams;
+import org.knowm.xchange.service.trade.params.CancelOrderParams;
+import org.knowm.xchange.service.trade.params.DefaultCancelOrderByCurrencyPairAndIdParams;
+import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamCurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Slf4j
 /** Created by Lukas Zaoralek on 17.11.17. */
 public class OkExManualExample {
   private static final Logger LOG = LoggerFactory.getLogger(OkExManualExample.class);
+  static ContractCurrencyPair BTCUSD_200925 = new ContractCurrencyPair(Currency.BTC, Currency.USD, "201225");
 
   public static void main(String[] args) {
+    ExchangeSpecification spec = new ExchangeSpecification(OkExStreamingExchange.class.getName());
+    spec.setSslUri("https://www.okex.com");
+    spec.setHost("www.okex.com");
+    spec.setExchangeName("OKEx");
+    spec.setExchangeDescription("OKEx is a globally oriented crypto-currency trading platform.");
+    spec.setExchangeSpecificParametersItem(USE_FUTURES_SPEC_ITEM, true);
+
+    String apiKey = "39b32509-ce38-44dd-b612-fe9798ca60b4";
+    String secretKey = "A795499B9AB1417FD406DEF18BC65D05";
+    String passPhrase = "TYBgch007";
+    spec.setExchangeSpecificParametersItem("passphrase", passPhrase);
+    spec.setApiKey(apiKey);
+    spec.setSecretKey(secretKey);
+
     StreamingExchange exchange =
-        StreamingExchangeFactory.INSTANCE.createExchange(OkExStreamingExchange.class.getName());
-    exchange.connect().blockingAwait();
+        StreamingExchangeFactory.INSTANCE.createExchange(spec);
+
+
+//    exchange.connect().blockingAwait();
+
+
+    LimitOrder build = new Builder(OrderType.BID, BTCUSD_200925)
+        .limitPrice(BigDecimal.valueOf(10810))
+        .originalAmount(BigDecimal.ONE).build();
+    build.addOrderFlag(OPEN_POSITION);
+
+    try {
+      long start = System.currentTimeMillis();
+//      build.getOrderFlags().add(TimeInForce.GTX);
+      String orderId;
+      try {
+        orderId = exchange.getTradeService().placeLimitOrder(build);
+      } catch (Exception e) {
+        log.error("order exception", e);
+        throw e;
+      }
+
+      LOG.info("order id {} {}ms", orderId, System.currentTimeMillis() - start);
+
+      start = System.currentTimeMillis();
+      DefaultQueryOrderParamCurrencyPair defaultQueryOrderParamCurrencyPair = new DefaultQueryOrderParamCurrencyPair(BTCUSD_200925, orderId);
+      Collection<Order> order = exchange.getTradeService().getOrder(defaultQueryOrderParamCurrencyPair);
+      for (Order o : order) {
+        LOG.info("order {} {}ms", o, System.currentTimeMillis() - start);
+      }
+      DefaultCancelOrderByCurrencyPairAndIdParams binanceCancelOrderParams = new DefaultCancelOrderByCurrencyPairAndIdParams(
+          BTCUSD_200925, orderId);
+      start = System.currentTimeMillis();
+      boolean b = exchange.getTradeService().cancelOrder(binanceCancelOrderParams);
+      LOG.info("canncel order id {} is {} {}ms",orderId, b, System.currentTimeMillis() - start);
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
 
     CurrencyPair btcUsdt = CurrencyPair.BTC_USDT;
 //    ChannelSubscriptionMessage channelForOrderBookMsg = new ChannelSubscriptionMessage(btcUsdt,
