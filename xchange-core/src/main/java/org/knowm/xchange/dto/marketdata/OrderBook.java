@@ -105,9 +105,18 @@ public class OrderBook implements Serializable {
     return asks.get(0).getLimitPrice();
   }
 
+  public BigDecimal getAskOneAmount() {
+    return asks.get(0).getOriginalAmount();
+  }
+
   public BigDecimal getBidOnePrice() {
     return bids.get(0).getLimitPrice();
   }
+
+  public BigDecimal getBidOneAmount() {
+    return bids.get(0).getOriginalAmount();
+  }
+
 
   public OrderBook copyToFirstPriceOne() {
     return new OrderBook(getTimeStamp(), Arrays.asList(asks.get(0)), Arrays.asList(bids.get(0)));
