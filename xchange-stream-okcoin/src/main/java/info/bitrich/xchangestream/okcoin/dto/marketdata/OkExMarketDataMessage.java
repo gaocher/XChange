@@ -67,6 +67,7 @@ public class OkExMarketDataMessage {
     private String price;
     private String side;
     private String size;
+    private String qty;
     private String timestamp;
     private String trade_id;
     private List<BigDecimal[]> asks = new ArrayList<>();
@@ -75,7 +76,7 @@ public class OkExMarketDataMessage {
     public Trade toTrade(CurrencyPair cp) {
       return new Trade.Builder()
           .type(this.getSide().equals("buy") ? OrderType.BID : OrderType.ASK)
-          .originalAmount(new BigDecimal(this.getSize()))
+          .originalAmount(new BigDecimal(this.getSize() == null ? this.getQty() : this.getSize()))
           .currencyPair(cp)
           .price(new BigDecimal(this.getPrice()))
           .timestamp(getDate(this.getTimestamp()))
