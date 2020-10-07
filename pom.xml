@@ -431,66 +431,6 @@
           <skipSource>false</skipSource>
         </configuration>
       </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <quiet>true</quiet>
-          <skip>false</skip>
-          <doclint>none</doclint>
-          <source>${version.java}</source>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-failsafe-plugin</artifactId>
-        <version>3.0.0-M5</version>
-        <executions>
-          <execution>
-            <goals>
-              <goal>integration-test</goal>
-              <goal>verify</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <skipTests>${skipIntegrationTests}</skipTests>
-          <includes>
-            <include>**/*Integration.java</include>
-          </includes>
-        </configuration>
-      </plugin>
-<!--      <plugin>-->
-<!--        <groupId>com.coveo</groupId>-->
-<!--        <artifactId>fmt-maven-plugin</artifactId>-->
-<!--        <version>2.10</version>-->
-<!--        <configuration>-->
-<!--          <filesNamePattern>.*\.java</filesNamePattern>-->
-<!--          <skip>false</skip>-->
-<!--        </configuration>-->
-<!--        <executions>-->
-<!--          <execution>-->
-<!--            <goals>-->
-<!--              <goal>format</goal>-->
-<!--            </goals>-->
-<!--          </execution>-->
-<!--        </executions>-->
-<!--      </plugin>-->
 
     </plugins>
   </build>
