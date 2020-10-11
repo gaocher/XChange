@@ -117,7 +117,7 @@ public class OrderBook implements Serializable {
     return bids.get(0).getOriginalAmount();
   }
 
-  public BigDecimal getAskTwoice() {
+  public BigDecimal getAskTwoPrice() {
     return asks.get(1).getLimitPrice();
   }
 
