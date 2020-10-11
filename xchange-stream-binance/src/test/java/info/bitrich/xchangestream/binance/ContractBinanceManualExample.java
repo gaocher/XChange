@@ -14,7 +14,6 @@ import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.binance.service.BinanceCancelOrderParams;
 import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
-import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.TimeInForce;
@@ -28,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /** Created by Lukas Zaoralek on 15.11.17. */
 public class ContractBinanceManualExample {
   private static final Logger LOG = LoggerFactory.getLogger(ContractBinanceManualExample.class);
-  static ContractCurrencyPair BTCUSD_200925 = new ContractCurrencyPair(Currency.BTC, Currency.USD, "201225");
+  static ContractCurrencyPair BTCUSD_201225 = new ContractCurrencyPair(Currency.BTC, Currency.USD, "201225");
   public static void main(String[] args) throws InterruptedException, IOException {
     // Far safer than temporarily adding these to code that might get committed to VCS
     String apiKey = System.getProperty("binance-api-key");
@@ -51,47 +50,49 @@ public class ContractBinanceManualExample {
         ProductSubscription.create()
 //            .addTicker(CurrencyPair.ETH_BTC)
 //            .addTicker(CurrencyPair.LTC_BTC)
-            .addOrderbook(BTCUSD_200925)
-            .addTrades(BTCUSD_200925)
+            .addOrderbook(BTCUSD_201225)
+            .addTrades(BTCUSD_201225)
             .build();
 
     long start = System.currentTimeMillis();
-    OrderBook orderBook = exchange.getMarketDataService().getOrderBook(BTCUSD_200925);
+    OrderBook orderBook = exchange.getMarketDataService().getOrderBook(BTCUSD_201225);
     LOG.info("orderbook {} {}ms", orderBook, System.currentTimeMillis() - start);
 
      start = System.currentTimeMillis();
-     orderBook = exchange.getMarketDataService().getOrderBook(BTCUSD_200925);
+     orderBook = exchange.getMarketDataService().getOrderBook(BTCUSD_201225);
     LOG.info("orderbook {} {}ms", orderBook, System.currentTimeMillis() - start);
 
 
-//    exchange.connect(subscription).blockingAwait();
+    exchange.connect(subscription).blockingAwait();
 
 
 
-    LimitOrder build = new Builder(OrderType.ASK, BTCUSD_200925)
+    LimitOrder build = new Builder(OrderType.BID, BTCUSD_201225)
         .limitPrice(BigDecimal.valueOf(10400))
         .originalAmount(BigDecimal.ONE).build();
 
-    try {
-      start = System.currentTimeMillis();
-      build.getOrderFlags().add(TimeInForce.GTX);
-      String orderId = exchange.getTradeService().placeLimitOrder(build);
-      LOG.info("order id {} {}ms",orderId, System.currentTimeMillis() - start);
-
-      start = System.currentTimeMillis();
-      DefaultQueryOrderParamCurrencyPair defaultQueryOrderParamCurrencyPair = new DefaultQueryOrderParamCurrencyPair(BTCUSD_200925, orderId);
-      Collection<Order> order = exchange.getTradeService().getOrder(defaultQueryOrderParamCurrencyPair);
-      for (Order o : order) {
-        LOG.info("order {} {}ms", o, System.currentTimeMillis() - start);
-      }
-      BinanceCancelOrderParams binanceCancelOrderParams = new BinanceCancelOrderParams(
-          BTCUSD_200925, orderId);
-      start = System.currentTimeMillis();
-      boolean b = exchange.getTradeService().cancelOrder(binanceCancelOrderParams);
-      LOG.info("canncel order id {} is {} {}ms",orderId, b, System.currentTimeMillis() - start);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+//    try {
+//      start = System.currentTimeMillis();
+//      build.getOrderFlags().add(TimeInForce.FOK);
+//      String orderId = exchange.getTradeService().placeLimitOrder(build);
+//
+//      LOG.info("order id {} {}ms", orderId, System.currentTimeMillis() - start);
+//
+//      start = System.currentTimeMillis();
+//      DefaultQueryOrderParamCurrencyPair defaultQueryOrderParamCurrencyPair = new DefaultQueryOrderParamCurrencyPair(
+//          BTCUSD_201225, orderId);
+//      Collection<Order> order = exchange.getTradeService().getOrder(defaultQueryOrderParamCurrencyPair);
+//      for (Order o : order) {
+//        LOG.info("order {} {}ms", o, System.currentTimeMillis() - start);
+//      }
+//      BinanceCancelOrderParams binanceCancelOrderParams = new BinanceCancelOrderParams(
+//          BTCUSD_201225, orderId);
+//      start = System.currentTimeMillis();
+//      boolean b = exchange.getTradeService().cancelOrder(binanceCancelOrderParams);
+//      LOG.info("canncel order id {} is {} {}ms",orderId, b, System.currentTimeMillis() - start);
+//    } catch (IOException e) {
+//      e.printStackTrace();
+//    }
     LOG.info("Subscribing public channels");
 
 //    Disposable tickers =
@@ -107,7 +108,7 @@ public class ContractBinanceManualExample {
     Disposable trades =
         exchange
             .getStreamingMarketDataService()
-            .getTrades(BTCUSD_200925)
+            .getTrades(BTCUSD_201225)
             .subscribe(
                 trade -> {
                   LOG.info("Trade: {}", trade);
@@ -184,7 +185,7 @@ public class ContractBinanceManualExample {
   private static Disposable orderbooks(StreamingExchange exchange, String identifier) {
     return exchange
         .getStreamingMarketDataService()
-        .getOrderBook(BTCUSD_200925)
+        .getOrderBook(BTCUSD_201225)
         .subscribe(
             orderBook -> {
               LOG.info(

@@ -5,8 +5,8 @@ import org.knowm.xchange.dto.Order.IOrderFlags;
 
 public enum TimeInForce implements IOrderFlags {
   GTC, //normal
-  FOK,
-  IOC,
+  FOK, //要么全部成交，要么取消
+  IOC, //无法立即成交(吃单)的部分就撤销
   GTX; //只做maker
 
   @JsonCreator

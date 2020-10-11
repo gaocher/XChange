@@ -98,6 +98,7 @@
     <module>xchange-binance</module>
     <module>xchange-core</module>
     <module>xchange-okcoin</module>
+    <module>xchange-huobi</module>
     <module>xchange-stream-binance</module>
     <module>xchange-stream-core</module>
     <module>xchange-stream-okcoin</module>
@@ -106,6 +107,7 @@
     <module>xchange-stream-service-pubnub</module>
     <module>xchange-stream-service-pusher</module>
     <module>xchange-stream-service-wamp</module>
+    <module>xchange-stream-huobi</module>
   </modules>
 
   <repositories>
