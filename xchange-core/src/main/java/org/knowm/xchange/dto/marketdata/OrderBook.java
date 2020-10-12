@@ -135,7 +135,7 @@ public class OrderBook implements Serializable {
 
 
   public OrderBook copyToFirstPriceOne() {
-    return new OrderBook(getTimeStamp(), Arrays.asList(asks.get(0)), Arrays.asList(bids.get(0)));
+    return new OrderBook(getTimeStamp(), Arrays.asList(asks.get(0), asks.get(1)), Arrays.asList(bids.get(0), bids.get(1)));
   }
 
   // Returns a copy of limitOrder with tradeableAmount replaced.
