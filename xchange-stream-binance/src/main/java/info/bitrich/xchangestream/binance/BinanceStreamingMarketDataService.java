@@ -10,6 +10,7 @@ import com.google.common.util.concurrent.RateLimiter;
 import info.bitrich.xchangestream.binance.dto.BinanceRawTrade;
 import info.bitrich.xchangestream.binance.dto.BinanceWebsocketTransaction;
 import info.bitrich.xchangestream.binance.dto.DepthBinanceWebSocketTransaction;
+import info.bitrich.xchangestream.binance.dto.MarkPriceBinanceWebsocketTransaction;
 import info.bitrich.xchangestream.binance.dto.TickerBinanceWebsocketTransaction;
 import info.bitrich.xchangestream.binance.dto.TradeBinanceWebsocketTransaction;
 import info.bitrich.xchangestream.core.ProductSubscription;
@@ -27,6 +28,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.knowm.xchange.binance.BinanceAdapters;
 import org.knowm.xchange.binance.BinanceErrorAdapter;
 import org.knowm.xchange.binance.dto.BinanceException;
+import org.knowm.xchange.binance.dto.marketdata.BinanceMarkPrice;
 import org.knowm.xchange.binance.dto.marketdata.BinanceOrderbook;
 import org.knowm.xchange.binance.dto.marketdata.BinanceTicker24h;
 import org.knowm.xchange.binance.service.BinanceMarketDataService;
@@ -51,6 +53,13 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
           .constructType(
               new TypeReference<
                   BinanceWebsocketTransaction<TickerBinanceWebsocketTransaction>>() {});
+
+  private static final JavaType MARK_PRICE_TYPE =
+      getObjectMapper()
+          .getTypeFactory()
+          .constructType(
+              new TypeReference<
+                  BinanceWebsocketTransaction<MarkPriceBinanceWebsocketTransaction>>() {});
   private static final JavaType TRADE_TYPE =
       getObjectMapper()
           .getTypeFactory()
@@ -72,6 +81,7 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
       new HashMap<>();
   private final Map<CurrencyPair, Observable<OrderBook>> orderbookSubscriptions = new HashMap<>();
   private final Map<CurrencyPair, Observable<BinanceRawTrade>> tradeSubscriptions = new HashMap<>();
+  private final Map<CurrencyPair, Observable<BinanceMarkPrice>> markPriceSubscriptions = new HashMap<>();
 
   private final ObjectMapper mapper = StreamingObjectMapperHelper.getObjectMapper();
   private final BinanceMarketDataService marketDataService;
@@ -123,6 +133,14 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
           "Binance exchange only supports up front subscriptions - subscribe at connect time");
     }
     return tradeSubscriptions.get(currencyPair);
+  }
+
+  public Observable<BinanceMarkPrice> getRawMarkPrice(CurrencyPair currencyPair, Object... args) {
+    if (!service.getProductSubscription().getMarkPrice().contains(currencyPair)) {
+      throw new UnsupportedOperationException(
+          "Binance exchange only supports up front subscriptions - subscribe at connect time");
+    }
+    return markPriceSubscriptions.get(currencyPair);
   }
 
   @Override
@@ -181,6 +199,14 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
             currencyPair ->
                 tradeSubscriptions.put(
                     currencyPair, triggerObservableBody(rawTradeStream(currencyPair).share())));
+
+    productSubscription
+        .getTrades()
+        .forEach(
+            currencyPair ->
+                markPriceSubscriptions.put(
+                    currencyPair, triggerObservableBody(rawMarkPriceStream(currencyPair).share())));
+
   }
 
   private Observable<BinanceTicker24h> rawTickerStream(CurrencyPair currencyPair) {
@@ -189,6 +215,14 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
         .map(this::tickerTransaction)
         .filter(transaction -> transaction.getData().getCurrencyPair().equals(currencyPair))
         .map(transaction -> transaction.getData().getTicker());
+  }
+
+  private Observable<BinanceMarkPrice> rawMarkPriceStream(CurrencyPair currencyPair) {
+    return service
+        .subscribeChannel(channelFromCurrency(currencyPair, "markPrice"))
+        .map(this::markPriceTransaction)
+        .filter(transaction -> transaction.getData().getCurrencyPair().equals(currencyPair))
+        .map(transaction -> transaction.getData().getBinanceMarkPrice());
   }
 
   private final class OrderbookSubscription {
@@ -372,6 +406,15 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
       JsonNode node) {
     try {
       return mapper.readValue(mapper.treeAsTokens(node), TICKER_TYPE);
+    } catch (IOException e) {
+      throw new ExchangeException("Unable to parse ticker transaction", e);
+    }
+  }
+
+  private BinanceWebsocketTransaction<MarkPriceBinanceWebsocketTransaction> markPriceTransaction(
+      JsonNode node) {
+    try {
+      return mapper.readValue(mapper.treeAsTokens(node), MARK_PRICE_TYPE);
     } catch (IOException e) {
       throw new ExchangeException("Unable to parse ticker transaction", e);
     }

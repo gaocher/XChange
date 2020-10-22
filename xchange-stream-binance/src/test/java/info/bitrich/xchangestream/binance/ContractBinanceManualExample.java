@@ -14,6 +14,7 @@ import org.knowm.xchange.ExchangeSpecification;
 import org.knowm.xchange.binance.service.BinanceCancelOrderParams;
 import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
+import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order;
 import org.knowm.xchange.dto.Order.OrderType;
 import org.knowm.xchange.dto.TimeInForce;
@@ -27,7 +28,11 @@ import org.slf4j.LoggerFactory;
 /** Created by Lukas Zaoralek on 15.11.17. */
 public class ContractBinanceManualExample {
   private static final Logger LOG = LoggerFactory.getLogger(ContractBinanceManualExample.class);
+  //PERP
+  static ContractCurrencyPair BTCUSD_PERP = new ContractCurrencyPair(Currency.BTC, Currency.USD, "PERP");
+
   static ContractCurrencyPair BTCUSD_201225 = new ContractCurrencyPair(Currency.BTC, Currency.USD, "201225");
+
   public static void main(String[] args) throws InterruptedException, IOException {
     // Far safer than temporarily adding these to code that might get committed to VCS
     String apiKey = System.getProperty("binance-api-key");
@@ -46,12 +51,15 @@ public class ContractBinanceManualExample {
     BinanceStreamingExchange exchange =
         (BinanceStreamingExchange) StreamingExchangeFactory.INSTANCE.createExchange(spec);
 
+    ContractCurrencyPair currencyPair = BTCUSD_PERP;
+
     ProductSubscription subscription =
         ProductSubscription.create()
 //            .addTicker(CurrencyPair.ETH_BTC)
 //            .addTicker(CurrencyPair.LTC_BTC)
-            .addOrderbook(BTCUSD_201225)
-            .addTrades(BTCUSD_201225)
+            .addOrderbook(currencyPair)
+            .addTrades(currencyPair)
+            .addMarkPrice(currencyPair)
             .build();
 
     long start = System.currentTimeMillis();
@@ -108,11 +116,16 @@ public class ContractBinanceManualExample {
     Disposable trades =
         exchange
             .getStreamingMarketDataService()
-            .getTrades(BTCUSD_201225)
+            .getTrades(currencyPair)
             .subscribe(
                 trade -> {
                   LOG.info("Trade: {}", trade);
                 });
+
+    exchange.getStreamingMarketDataService().getRawMarkPrice(currencyPair)
+        .subscribe(binanceMarkPrice -> {
+          LOG.info("binanceMarkPrice: {}", binanceMarkPrice);
+        });
 
     Disposable orderChanges = null;
     Disposable userTrades = null;
@@ -160,7 +173,7 @@ public class ContractBinanceManualExample {
 //    }
 //
 
-    Disposable orderbooks = orderbooks(exchange, "one");
+    Disposable orderbooks = orderbooks(currencyPair, exchange, "one");
 //    Thread.sleep(5000);
 //    Disposable orderbooks2 = orderbooks(exchange, "two");
 //
@@ -182,10 +195,10 @@ public class ContractBinanceManualExample {
 //    exchange.disconnect().blockingAwait();
   }
 
-  private static Disposable orderbooks(StreamingExchange exchange, String identifier) {
+  private static Disposable orderbooks(CurrencyPair currencyPair, StreamingExchange exchange, String identifier) {
     return exchange
         .getStreamingMarketDataService()
-        .getOrderBook(BTCUSD_201225)
+        .getOrderBook(currencyPair)
         .subscribe(
             orderBook -> {
               LOG.info(

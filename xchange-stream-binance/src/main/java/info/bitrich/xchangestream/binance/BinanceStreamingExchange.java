@@ -199,7 +199,8 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
     return Stream.of(
             buildSubscriptionStrings(subscription.getTicker(), "ticker"),
             buildSubscriptionStrings(subscription.getOrderBook(), "depth"),
-            buildSubscriptionStrings(subscription.getTrades(), "trade"))
+            buildSubscriptionStrings(subscription.getTrades(), "trade"),
+            buildSubscriptionStrings(subscription.getMarkPrice(), "markPrice"))
         .filter(s -> !s.isEmpty())
         .collect(Collectors.joining("/"));
   }

@@ -19,6 +19,7 @@ public class ProductSubscription {
   private final List<CurrencyPair> userTrades;
   private final List<CurrencyPair> orders;
   private final List<Currency> balances;
+  private final List<CurrencyPair> markPrice;
 
   private ProductSubscription(ProductSubscriptionBuilder builder) {
     this.orderBook = asList(builder.orderBook);
@@ -27,6 +28,7 @@ public class ProductSubscription {
     this.orders = asList(builder.orders);
     this.userTrades = asList(builder.userTrades);
     this.balances = asList(builder.balances);
+    this.markPrice = asList(builder.markPrices);
   }
 
   private <T> List<T> asList(Iterable<T> collection) {
@@ -41,6 +43,10 @@ public class ProductSubscription {
 
   public List<CurrencyPair> getTrades() {
     return trades;
+  }
+
+  public List<CurrencyPair> getMarkPrice() {
+    return markPrice;
   }
 
   public List<CurrencyPair> getTicker() {
@@ -82,6 +88,7 @@ public class ProductSubscription {
     private final Set<CurrencyPair> userTrades;
     private final Set<CurrencyPair> orders;
     private final Set<Currency> balances;
+    private final Set<CurrencyPair> markPrices;
 
     private ProductSubscriptionBuilder() {
       orderBook = new HashSet<>();
@@ -90,6 +97,7 @@ public class ProductSubscription {
       orders = new HashSet<>();
       userTrades = new HashSet<>();
       balances = new HashSet<>();
+      markPrices = new HashSet<>();
     }
 
     public ProductSubscriptionBuilder addOrderbook(CurrencyPair pair) {
@@ -119,6 +127,11 @@ public class ProductSubscription {
 
     public ProductSubscriptionBuilder addBalances(Currency pair) {
       balances.add(pair);
+      return this;
+    }
+
+    public ProductSubscriptionBuilder addMarkPrice(CurrencyPair pair) {
+      markPrices.add(pair);
       return this;
     }
 
