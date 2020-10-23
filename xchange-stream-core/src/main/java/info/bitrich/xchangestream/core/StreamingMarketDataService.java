@@ -2,6 +2,7 @@ package info.bitrich.xchangestream.core;
 
 import io.reactivex.Observable;
 import org.knowm.xchange.currency.CurrencyPair;
+import org.knowm.xchange.dto.marketdata.MarkPrice;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.Ticker;
 import org.knowm.xchange.dto.marketdata.Trade;
@@ -46,4 +47,8 @@ public interface StreamingMarketDataService {
    * @return {@link Observable} that emits {@link Trade} when exchange sends the update.
    */
   Observable<Trade> getTrades(CurrencyPair currencyPair, Object... args);
+
+  default Observable<MarkPrice> getMarkPrice(CurrencyPair currencyPair, Object... args) {
+    throw new IllegalStateException("not implements");
+  }
 }

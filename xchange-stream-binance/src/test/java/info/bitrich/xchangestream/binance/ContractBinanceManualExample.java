@@ -122,7 +122,7 @@ public class ContractBinanceManualExample {
                   LOG.info("Trade: {}", trade);
                 });
 
-    exchange.getStreamingMarketDataService().getRawMarkPrice(currencyPair)
+    exchange.getStreamingMarketDataService().getMarkPrice(currencyPair)
         .subscribe(binanceMarkPrice -> {
           LOG.info("binanceMarkPrice: {}", binanceMarkPrice);
         });

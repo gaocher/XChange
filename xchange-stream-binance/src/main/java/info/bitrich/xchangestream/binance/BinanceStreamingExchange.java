@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import info.bitrich.xchangestream.binance.BinanceUserDataChannel.NoActiveChannelException;
 import info.bitrich.xchangestream.core.ProductSubscription;
 import info.bitrich.xchangestream.core.StreamingExchange;
+import info.bitrich.xchangestream.core.StreamingMarketDataService;
 import info.bitrich.xchangestream.util.Events;
 import io.reactivex.Completable;
 import io.reactivex.Observable;
@@ -176,7 +177,7 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
   }
 
   @Override
-  public BinanceStreamingMarketDataService getStreamingMarketDataService() {
+  public StreamingMarketDataService getStreamingMarketDataService() {
     return streamingMarketDataService;
   }
 

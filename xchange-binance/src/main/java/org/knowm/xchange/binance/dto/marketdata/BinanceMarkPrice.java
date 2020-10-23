@@ -9,14 +9,14 @@ import java.math.BigDecimal;
  */
 public class BinanceMarkPrice {
   private final String eventType;
-  private final String eventTime;
+  private final long eventTime;
   private final String symbol;
   private final BigDecimal price;
   private final BigDecimal predicatedSettlementPrice;
   private final BigDecimal assetRate;
   private final long nextAssetRateTime;
 
-  public BinanceMarkPrice(String eventType, String eventTime, String symbol,
+  public BinanceMarkPrice(String eventType, long eventTime, String symbol,
       BigDecimal price, BigDecimal predicatedSettlementPrice, BigDecimal assetRate,
       long nextAssetRateTime) {
     this.eventType = eventType;
@@ -32,7 +32,7 @@ public class BinanceMarkPrice {
     return eventType;
   }
 
-  public String getEventTime() {
+  public long getEventTime() {
     return eventTime;
   }
 

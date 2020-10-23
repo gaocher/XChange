@@ -14,13 +14,13 @@ public class MarkPriceBinanceWebsocketTransaction extends ProductBinanceWebSocke
 
   public MarkPriceBinanceWebsocketTransaction(
       @JsonProperty("e") String eventType,
-      @JsonProperty("E") String eventTime,
+      @JsonProperty("E") long eventTime,
       @JsonProperty("s") String symbol,
       @JsonProperty("p") BigDecimal price,
       @JsonProperty("P") BigDecimal predicatedSettlementPrice,
       @JsonProperty("r") BigDecimal assetRate,
       @JsonProperty("T") long nextAssetRateTime) {
-    super(eventType, eventTime, symbol);
+    super(eventType, String.valueOf(eventTime), symbol);
     this.binanceMarkPrice = new BinanceMarkPrice(eventType, eventTime, symbol, price, predicatedSettlementPrice, assetRate, nextAssetRateTime);
   }
 

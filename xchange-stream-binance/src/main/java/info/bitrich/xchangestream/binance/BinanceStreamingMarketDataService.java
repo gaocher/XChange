@@ -34,6 +34,7 @@ import org.knowm.xchange.binance.dto.marketdata.BinanceTicker24h;
 import org.knowm.xchange.binance.service.BinanceMarketDataService;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order.OrderType;
+import org.knowm.xchange.dto.marketdata.MarkPrice;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.knowm.xchange.dto.marketdata.OrderBookUpdate;
 import org.knowm.xchange.dto.marketdata.Ticker;
@@ -161,6 +162,13 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
                     .timestamp(new Date(rawTrade.getTimestamp()))
                     .id(String.valueOf(rawTrade.getTradeId()))
                     .build());
+  }
+
+  @Override
+  public Observable<MarkPrice> getMarkPrice(CurrencyPair currencyPair, Object... args) {
+    return getRawMarkPrice(currencyPair, args).map(raw -> {
+        return new MarkPrice(currencyPair, raw.getPrice(), raw.getPredicatedSettlementPrice(), raw.getAssetRate(), raw.getNextAssetRateTime(), new Date(raw.getEventTime()));
+    });
   }
 
   private String channelFromCurrency(CurrencyPair currencyPair, String subscriptionType) {
