@@ -21,6 +21,7 @@ import org.knowm.xchange.binance.dto.account.AssetDetailResponse;
 import org.knowm.xchange.binance.dto.account.AssetDividendResponse;
 import org.knowm.xchange.binance.dto.account.AssetDribbletLogResponse;
 import org.knowm.xchange.binance.dto.account.BinanceAccountInformation;
+import org.knowm.xchange.binance.dto.account.BinanceContractBalance;
 import org.knowm.xchange.binance.dto.account.DepositAddress;
 import org.knowm.xchange.binance.dto.account.DepositList;
 import org.knowm.xchange.binance.dto.account.TransferHistoryResponse;
@@ -237,6 +238,26 @@ public interface CBinanceAuthenticated extends CBinance, BinanceAuthenticated {
    * @throws BinanceException
    */
   BinanceAccountInformation account(
+      @QueryParam("recvWindow") Long recvWindow,
+      @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
+      @HeaderParam(X_MBX_APIKEY) String apiKey,
+      @QueryParam(SIGNATURE) ParamsDigest signature)
+      throws IOException, BinanceException;
+
+
+
+  @GET
+  @Path("dapi/v1/balance")
+  /**
+   * Get current account information.
+   *
+   * @param recvWindow optional
+   * @param timestamp
+   * @return
+   * @throws IOException
+   * @throws BinanceException
+   */
+  List<BinanceContractBalance> balance(
       @QueryParam("recvWindow") Long recvWindow,
       @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
       @HeaderParam(X_MBX_APIKEY) String apiKey,

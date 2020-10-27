@@ -15,6 +15,7 @@ import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.binance.dto.BinanceException;
 import org.knowm.xchange.binance.dto.account.AssetDetail;
 import org.knowm.xchange.binance.dto.account.BinanceAccountInformation;
+import org.knowm.xchange.binance.dto.account.BinanceContractBalance;
 import org.knowm.xchange.binance.dto.account.DepositAddress;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
@@ -22,13 +23,23 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.AddressWithTag;
 import org.knowm.xchange.dto.account.Balance;
+import org.knowm.xchange.dto.account.ContractBalance;
+import org.knowm.xchange.dto.account.ContractBalanceInfo;
 import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.FundingRecord.Status;
 import org.knowm.xchange.dto.account.FundingRecord.Type;
 import org.knowm.xchange.dto.account.Wallet;
 import org.knowm.xchange.service.account.AccountService;
-import org.knowm.xchange.service.trade.params.*;
+import org.knowm.xchange.service.trade.params.DefaultWithdrawFundsParams;
+import org.knowm.xchange.service.trade.params.HistoryParamsFundingType;
+import org.knowm.xchange.service.trade.params.RippleWithdrawFundsParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamCurrency;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamLimit;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamPaging;
+import org.knowm.xchange.service.trade.params.TradeHistoryParams;
+import org.knowm.xchange.service.trade.params.TradeHistoryParamsTimeSpan;
+import org.knowm.xchange.service.trade.params.WithdrawFundsParams;
 
 public class BinanceAccountService extends BinanceAccountServiceRaw implements AccountService {
 
@@ -80,6 +91,26 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
               .map(b -> new Balance(b.getCurrency(), b.getTotal(), b.getAvailable()))
               .collect(Collectors.toList());
       return new AccountInfo(new Date(acc.updateTime), Wallet.Builder.from(balances).build());
+    } catch (BinanceException e) {
+      throw BinanceErrorAdapter.adapt(e);
+    }
+  }
+
+  @Override
+  public ContractBalanceInfo getBalanceInfo() throws BinanceException, IOException {
+    try {
+      List<BinanceContractBalance> balances = balance();
+      Map<Currency, ContractBalance> balanceMap = balances.stream().map(balance ->
+          new ContractBalance(
+              balance.getCurrency(),
+              balance.getBalance(),
+              balance.getWithdrawAvailable(),
+              balance.getCrossWalletBalance(),
+              balance.getCrossUnPnl(),
+              balance.getAvailableBalance(),
+              balance.getTimestamp()))
+          .collect(Collectors.toMap(t -> t.getCurrency(), t -> t));
+      return new ContractBalanceInfo(balanceMap);
     } catch (BinanceException e) {
       throw BinanceErrorAdapter.adapt(e);
     }

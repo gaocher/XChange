@@ -9,6 +9,7 @@ import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.AddressWithTag;
+import org.knowm.xchange.dto.account.ContractBalanceInfo;
 import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.exceptions.ExchangeException;
@@ -45,6 +46,10 @@ public interface AccountService extends BaseService {
    * @throws IOException - Indication that a networking error occurred while fetching JSON data
    */
   default AccountInfo getAccountInfo() throws IOException {
+    throw new NotYetImplementedForExchangeException();
+  }
+
+  default ContractBalanceInfo getBalanceInfo() throws IOException {
     throw new NotYetImplementedForExchangeException();
   }
 

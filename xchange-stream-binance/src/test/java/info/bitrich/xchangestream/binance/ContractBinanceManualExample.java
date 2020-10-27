@@ -7,21 +7,12 @@ import info.bitrich.xchangestream.core.StreamingExchange;
 import info.bitrich.xchangestream.core.StreamingExchangeFactory;
 import io.reactivex.disposables.Disposable;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.Collection;
 import org.knowm.xchange.ExchangeSpecification;
-
-import org.knowm.xchange.binance.service.BinanceCancelOrderParams;
 import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.dto.Order;
-import org.knowm.xchange.dto.Order.OrderType;
-import org.knowm.xchange.dto.TimeInForce;
+import org.knowm.xchange.dto.account.ContractBalanceInfo;
 import org.knowm.xchange.dto.marketdata.OrderBook;
-import org.knowm.xchange.dto.trade.LimitOrder;
-import org.knowm.xchange.dto.trade.LimitOrder.Builder;
-import org.knowm.xchange.service.trade.params.orders.DefaultQueryOrderParamCurrencyPair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,9 +29,11 @@ public class ContractBinanceManualExample {
     String apiKey = System.getProperty("binance-api-key");
     String apiSecret = System.getProperty("binance-api-secret");
 
-    apiKey = "9cxwWaYAEcvVRqYrLoCNKwjBgB2ipzPUk0rrJmgDJeaIJhLVnz9p37ljWoeAQVNb";
-    apiSecret = "acJsbXrAcGhhhQbuSkbCdWwjz1SEWZN3LrK8EznWZtrWseX00EZ7D70VCueP2DGG";
+//    apiKey = "9cxwWaYAEcvVRqYrLoCNKwjBgB2ipzPUk0rrJmgDJeaIJhLVnz9p37ljWoeAQVNb";
+//    apiSecret = "acJsbXrAcGhhhQbuSkbCdWwjz1SEWZN3LrK8EznWZtrWseX00EZ7D70VCueP2DGG";
 
+    apiKey = "Mpdsdb8BxDgW17AhqderPtykHJyGRnyRzKJpbkRqxgyNVAqOHsiHvVDhFYRCmatv";
+    apiSecret = "EdP5cyOmWn5jKONuL8TVVizm9WUJfqDAAKK8bTdaj5sBXFnUDg3Flc8NBd7LicTL";
     ExchangeSpecification spec =
         StreamingExchangeFactory.INSTANCE
             .createExchange(ContractBinanceStreamingExchange.class.getName())
@@ -51,7 +44,8 @@ public class ContractBinanceManualExample {
     BinanceStreamingExchange exchange =
         (BinanceStreamingExchange) StreamingExchangeFactory.INSTANCE.createExchange(spec);
 
-    ContractCurrencyPair currencyPair = BTCUSD_PERP;
+//    ContractCurrencyPair currencyPair = BTCUSD_PERP;
+    ContractCurrencyPair currencyPair = BTCUSD_201225;
 
     ProductSubscription subscription =
         ProductSubscription.create()
@@ -71,13 +65,13 @@ public class ContractBinanceManualExample {
     LOG.info("orderbook {} {}ms", orderBook, System.currentTimeMillis() - start);
 
 
-    exchange.connect(subscription).blockingAwait();
 
 
+    ContractBalanceInfo balanceInfo = exchange.getAccountService().getBalanceInfo();
 
-    LimitOrder build = new Builder(OrderType.BID, BTCUSD_201225)
-        .limitPrice(BigDecimal.valueOf(10400))
-        .originalAmount(BigDecimal.ONE).build();
+//    LimitOrder build = new Builder(OrderType.BID, BTCUSD_201225)
+//        .limitPrice(BigDecimal.valueOf(10400))
+//        .originalAmount(BigDecimal.ONE).build();
 
 //    try {
 //      start = System.currentTimeMillis();
@@ -101,6 +95,8 @@ public class ContractBinanceManualExample {
 //    } catch (IOException e) {
 //      e.printStackTrace();
 //    }
+
+    exchange.connect(subscription).blockingAwait();
     LOG.info("Subscribing public channels");
 
 //    Disposable tickers =
