@@ -10,6 +10,7 @@ import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.AccountInfo;
 import org.knowm.xchange.dto.account.AddressWithTag;
 import org.knowm.xchange.dto.account.ContractBalanceInfo;
+import org.knowm.xchange.dto.account.ContractPositionInfo;
 import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.exceptions.ExchangeException;
@@ -50,6 +51,11 @@ public interface AccountService extends BaseService {
   }
 
   default ContractBalanceInfo getBalanceInfo() throws IOException {
+    throw new NotYetImplementedForExchangeException();
+  }
+
+
+  default ContractPositionInfo getContractPositionInfo() throws IOException {
     throw new NotYetImplementedForExchangeException();
   }
 

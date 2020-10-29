@@ -12,6 +12,7 @@ import org.knowm.xchange.currency.ContractCurrencyPair;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.account.ContractBalanceInfo;
+import org.knowm.xchange.dto.account.ContractPositionInfo;
 import org.knowm.xchange.dto.marketdata.OrderBook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +69,7 @@ public class ContractBinanceManualExample {
 
 
     ContractBalanceInfo balanceInfo = exchange.getAccountService().getBalanceInfo();
+    ContractPositionInfo contractPositionInfo = exchange.getAccountService().getContractPositionInfo();
 
 //    LimitOrder build = new Builder(OrderType.BID, BTCUSD_201225)
 //        .limitPrice(BigDecimal.valueOf(10400))

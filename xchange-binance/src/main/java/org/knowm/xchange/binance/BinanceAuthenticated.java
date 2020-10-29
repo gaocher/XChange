@@ -250,6 +250,25 @@ public interface BinanceAuthenticated extends Binance {
       @QueryParam(SIGNATURE) ParamsDigest signature)
       throws IOException, BinanceException;
 
+
+  @GET
+  @Path("api/v3/position")
+  /**
+   * Get current account information.
+   *
+   * @param recvWindow optional
+   * @param timestamp
+   * @return
+   * @throws IOException
+   * @throws BinanceException
+   */
+  List<BinanceContractPosition> position(
+      @QueryParam("recvWindow") Long recvWindow,
+      @QueryParam("timestamp") SynchronizedValueFactory<Long> timestamp,
+      @HeaderParam(X_MBX_APIKEY) String apiKey,
+      @QueryParam(SIGNATURE) ParamsDigest signature)
+      throws IOException, BinanceException;
+
   @GET
   @Path("api/v3/myTrades")
   /**

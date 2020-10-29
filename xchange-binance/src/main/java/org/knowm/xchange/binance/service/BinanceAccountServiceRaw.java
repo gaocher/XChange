@@ -36,7 +36,15 @@ public class BinanceAccountServiceRaw extends BinanceBaseService {
   public List<BinanceContractBalance> balance() throws BinanceException, IOException {
     return decorateApiCall(
         () -> binance.balance(getRecvWindow(), getTimestampFactory(), apiKey, signatureCreator))
-        .withRetry(retry("account"))
+        .withRetry(retry("balance"))
+        .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 5)
+        .call();
+  }
+
+  public List<BinanceContractPosition> position() throws BinanceException, IOException {
+    return decorateApiCall(
+        () -> binance.position(getRecvWindow(), getTimestampFactory(), apiKey, signatureCreator))
+        .withRetry(retry("position"))
         .withRateLimiter(rateLimiter(REQUEST_WEIGHT_RATE_LIMITER), 5)
         .call();
   }

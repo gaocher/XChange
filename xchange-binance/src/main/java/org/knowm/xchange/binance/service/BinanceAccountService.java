@@ -16,6 +16,7 @@ import org.knowm.xchange.binance.dto.BinanceException;
 import org.knowm.xchange.binance.dto.account.AssetDetail;
 import org.knowm.xchange.binance.dto.account.BinanceAccountInformation;
 import org.knowm.xchange.binance.dto.account.BinanceContractBalance;
+import org.knowm.xchange.binance.dto.account.BinanceContractPosition;
 import org.knowm.xchange.binance.dto.account.DepositAddress;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
@@ -25,6 +26,8 @@ import org.knowm.xchange.dto.account.AddressWithTag;
 import org.knowm.xchange.dto.account.Balance;
 import org.knowm.xchange.dto.account.ContractBalance;
 import org.knowm.xchange.dto.account.ContractBalanceInfo;
+import org.knowm.xchange.dto.account.ContractPosition;
+import org.knowm.xchange.dto.account.ContractPositionInfo;
 import org.knowm.xchange.dto.account.Fee;
 import org.knowm.xchange.dto.account.FundingRecord;
 import org.knowm.xchange.dto.account.FundingRecord.Status;
@@ -111,6 +114,31 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
               balance.getTimestamp()))
           .collect(Collectors.toMap(t -> t.getCurrency(), t -> t));
       return new ContractBalanceInfo(balanceMap);
+    } catch (BinanceException e) {
+      throw BinanceErrorAdapter.adapt(e);
+    }
+  }
+
+  @Override
+  public ContractPositionInfo getContractPositionInfo() throws BinanceException, IOException {
+    try {
+      List<BinanceContractPosition> positions = position();
+      List<ContractPosition> contractPositions = positions.stream()
+          .filter(p -> p.getAmount().compareTo(BigDecimal.ZERO) != 0)
+          .map(position ->
+            new ContractPosition(
+                position.getSymbol(),
+                position.getAmount(),
+                position.getEntryPrice(),
+                position.getMarkPrice(),
+                position.getUnrealizedPnl(),
+                position.getLiquidationPrice(),
+                position.getLeverage(),
+                position.getMaxQty(),
+                position.getMarginType(),
+                position.getPositionSide()))
+          .collect(Collectors.toList());
+      return new ContractPositionInfo(contractPositions);
     } catch (BinanceException e) {
       throw BinanceErrorAdapter.adapt(e);
     }
