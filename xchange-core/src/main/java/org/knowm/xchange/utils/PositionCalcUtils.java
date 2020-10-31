@@ -89,6 +89,10 @@ public class PositionCalcUtils {
       public BigDecimal getPnlRate() {
         return pnlRate;
       }
+
+      public BigDecimal getPriceDiff() {
+        return priceDiff;
+      }
     }
 
 
