@@ -35,7 +35,7 @@ public class PositionCalcUtils {
     BigDecimal fee = open.getFee().add(close.getFee());
     BigDecimal pnl = open.getPnl().add(close.getPnl());
     BigDecimal pnlRate = pnl.divide(openCost, 8, BigDecimal.ROUND_HALF_EVEN);
-    return new PositionCalcResult(openCost, pnl, fee, pnlRate);
+    return new PositionCalcResult(openCost, pnl, fee, pnlRate, closeAskPrice.subtract(closeBidPrice));
   }
 
   public static class PositionCalc {
@@ -46,7 +46,7 @@ public class PositionCalcUtils {
       BigDecimal fee = cost.multiply(FEE_RATE);
       BigDecimal pnl = getDiffPnl(bidPrice, askPrice).subtract(fee);
       BigDecimal pnlRate = pnl.divide(cost, 8, BigDecimal.ROUND_HALF_EVEN);
-      return new PositionCalcResult(cost, pnl, fee, pnlRate);
+      return new PositionCalcResult(cost, pnl, fee, pnlRate, askPrice.subtract(bidPrice));
     }
 
     public static BigDecimal getNamedValue(BigDecimal price) {
@@ -63,13 +63,15 @@ public class PositionCalcUtils {
       private BigDecimal pnl;
       private BigDecimal fee;
       private BigDecimal pnlRate;
+      private BigDecimal priceDiff;
 
       public PositionCalcResult(BigDecimal cost, BigDecimal pnl, BigDecimal fee,
-          BigDecimal pnlRate) {
+          BigDecimal pnlRate, BigDecimal priceDiff) {
         this.cost = cost;
         this.pnl = pnl;
         this.fee = fee;
         this.pnlRate = pnlRate;
+        this.priceDiff = priceDiff;
       }
 
       public BigDecimal getCost() {
