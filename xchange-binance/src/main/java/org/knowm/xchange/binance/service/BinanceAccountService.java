@@ -124,7 +124,6 @@ public class BinanceAccountService extends BinanceAccountServiceRaw implements A
     try {
       List<BinanceContractPosition> positions = position();
       List<ContractPosition> contractPositions = positions.stream()
-          .filter(p -> p.getAmount().compareTo(BigDecimal.ZERO) != 0)
           .map(position ->
             new ContractPosition(
                 position.getSymbol(),
