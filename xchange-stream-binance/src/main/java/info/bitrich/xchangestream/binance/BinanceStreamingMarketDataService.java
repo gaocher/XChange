@@ -334,9 +334,18 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
               if (lastUpdateId == 0L) {
                 result = true;
               } else {
-                result =
-                    depth.getPreLastUpdateId() == lastUpdateId &&
-                    depth.getFirstUpdateId() > lastUpdateId;
+                if (lastUpdateId == subscription.snapshotlastUpdateId) {
+                  //说明前一次是通过snapshot获取的
+                  result = depth.getLastUpdateId() > lastUpdateId;
+                } else if (depth.getPreLastUpdateId() == 0) {
+                  //对于现货，是没有pu的 (维持原始判断逻辑）
+                  result = depth.getFirstUpdateId() <= lastUpdateId + 1
+                      && depth.getLastUpdateId() >= lastUpdateId + 1;
+                } else {
+                  result =
+                      depth.getPreLastUpdateId() == lastUpdateId &&
+                          depth.getFirstUpdateId() > lastUpdateId;
+                }
               }
               if (result) {
                 subscription.lastUpdateId.set(depth.getLastUpdateId());
