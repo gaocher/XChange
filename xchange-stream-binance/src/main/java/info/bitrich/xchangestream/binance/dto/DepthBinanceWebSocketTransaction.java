@@ -9,6 +9,7 @@ public class DepthBinanceWebSocketTransaction extends ProductBinanceWebSocketTra
   private final BinanceOrderbook orderBook;
   private final long lastUpdateId;
   private final long firstUpdateId;
+  private final long preLastUpdateId;
 
   public DepthBinanceWebSocketTransaction(
       @JsonProperty("e") String eventType,
@@ -16,11 +17,13 @@ public class DepthBinanceWebSocketTransaction extends ProductBinanceWebSocketTra
       @JsonProperty("s") String symbol,
       @JsonProperty("U") long firstUpdateId,
       @JsonProperty("u") long lastUpdateId,
+      @JsonProperty("pu") long preLastUpdateId,
       @JsonProperty("b") List<Object[]> _bids,
       @JsonProperty("a") List<Object[]> _asks) {
     super(eventType, eventTime, symbol);
     this.firstUpdateId = firstUpdateId;
     this.lastUpdateId = lastUpdateId;
+    this.preLastUpdateId = preLastUpdateId;
     orderBook = new BinanceOrderbook(lastUpdateId, _bids, _asks);
   }
 
@@ -34,5 +37,9 @@ public class DepthBinanceWebSocketTransaction extends ProductBinanceWebSocketTra
 
   public long getLastUpdateId() {
     return lastUpdateId;
+  }
+
+  public long getPreLastUpdateId() {
+    return preLastUpdateId;
   }
 }

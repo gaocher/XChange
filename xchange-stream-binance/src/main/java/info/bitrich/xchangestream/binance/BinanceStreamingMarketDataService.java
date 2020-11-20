@@ -335,8 +335,8 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
                 result = true;
               } else {
                 result =
-                    depth.getFirstUpdateId() <= lastUpdateId + 1
-                        && depth.getLastUpdateId() >= lastUpdateId + 1;
+                    depth.getPreLastUpdateId() == lastUpdateId &&
+                    depth.getFirstUpdateId() > lastUpdateId;
               }
               if (result) {
                 subscription.lastUpdateId.set(depth.getLastUpdateId());
@@ -347,18 +347,16 @@ public class BinanceStreamingMarketDataService implements StreamingMarketDataSer
                 // update event without double-counting 5, and we can't apply the 7-9 update without
                 // missing 6.  The only thing we can do is to keep requesting a fresh snapshot until
                 // we get to a situation where the snapshot and an update event precisely line up.
-                LOG.info(
+                LOG.error(
                     "Orderbook snapshot for {} out of date (last={}, U={}, u={}). This is normal. Re-syncing.",
                     currencyPair,
                     lastUpdateId,
                     depth.getFirstUpdateId(),
                     depth.getLastUpdateId());
-                //FIXME: fix snapshot
-//                subscription.invalidateSnapshot();
+                subscription.invalidateSnapshot();
                 subscription.lastUpdateId.set(depth.getLastUpdateId());
               }
               return result;
-//              return true;
             })
 
         // 7. The data in each event is the absolute quantity for a price level
