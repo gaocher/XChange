@@ -12,32 +12,36 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.knowm.xchange.binance.BinanceAuthenticated;
 import org.knowm.xchange.binance.BinanceExchange;
 import org.knowm.xchange.binance.service.BinanceMarketDataService;
 import org.knowm.xchange.currency.CurrencyPair;
-import org.knowm.xchange.service.BaseExchangeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import si.mazi.rescu.RestProxyFactory;
 
 public class BinanceStreamingExchange extends BinanceExchange implements StreamingExchange {
 
   private static final Logger LOG = LoggerFactory.getLogger(BinanceStreamingExchange.class);
-  private static final String API_BASE_URI = "wss://stream.binance.com:9443/";
   public  static final String USE_HIGHER_UPDATE_FREQUENCY =
       "Binance_Orderbook_Use_Higher_Frequency";
 
-  private BinanceStreamingService streamingService;
-  private BinanceUserDataStreamingService userDataStreamingService;
+  protected BinanceStreamingService streamingService;
+  protected BinanceUserDataStreamingService userDataStreamingService;
 
-  private BinanceStreamingMarketDataService streamingMarketDataService;
-  private BinanceStreamingAccountService streamingAccountService;
-  private BinanceStreamingTradeService streamingTradeService;
+  protected BinanceStreamingMarketDataService streamingMarketDataService;
+  protected BinanceStreamingAccountService streamingAccountService;
+  protected BinanceStreamingTradeService streamingTradeService;
 
   private BinanceUserDataChannel userDataChannel;
-  private Runnable onApiCall;
-  private String orderBookUpdateFrequencyParameter = "";
+  protected Runnable onApiCall;
+  protected String orderBookUpdateFrequencyParameter = "";
+
+  protected String getStreamingApiBaseUri() {
+    return "wss://stream.binance.com:9443/";
+  }
+
+  protected String getUserStreamingApiBaseUri() {
+    return getStreamingApiBaseUri() + "ws/";
+  }
 
   @Override
   protected void initServices() {
@@ -89,11 +93,6 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
       }
 
       LOG.info("Connecting to authenticated web socket");
-      BinanceAuthenticated binance =
-          RestProxyFactory.createProxy(
-              BinanceAuthenticated.class,
-              getExchangeSpecification().getSslUri(),
-              new BaseExchangeService<BinanceExchange>(this) {}.getClientConfig());
       userDataChannel =
           new BinanceUserDataChannel(binance, exchangeSpecification.getApiKey(), onApiCall);
       try {
@@ -103,14 +102,7 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
       }
     }
 
-    streamingMarketDataService =
-        new BinanceStreamingMarketDataService(
-            streamingService,
-            (BinanceMarketDataService) marketDataService,
-            onApiCall,
-            orderBookUpdateFrequencyParameter);
-    streamingAccountService = new BinanceStreamingAccountService(userDataStreamingService);
-    streamingTradeService = new BinanceStreamingTradeService(userDataStreamingService);
+    initConcreteStreamService();
 
     return Completable.concat(completables)
         .doOnComplete(() -> streamingMarketDataService.openSubscriptions(subscriptions))
@@ -118,8 +110,20 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
         .doOnComplete(() -> streamingTradeService.openSubscriptions());
   }
 
+  protected void initConcreteStreamService() {
+    streamingMarketDataService =
+        new BinanceStreamingMarketDataService(
+            streamingService,
+            (BinanceMarketDataService) marketDataService,
+            onApiCall,
+            orderBookUpdateFrequencyParameter);
+    streamingAccountService = new BinanceStreamingAccountService(userDataStreamingService);
+    streamingTradeService = new SpotBinanceStreamingTradeService(userDataStreamingService);
+  }
+
   private Completable createAndConnectUserDataService(String listenKey) {
-    userDataStreamingService = BinanceUserDataStreamingService.create(listenKey);
+    String userDataUrl = getUserStreamingApiBaseUri() + listenKey;
+    userDataStreamingService = BinanceUserDataStreamingService.create(userDataUrl);
     return userDataStreamingService
         .connect()
         .doOnComplete(
@@ -192,7 +196,7 @@ public class BinanceStreamingExchange extends BinanceExchange implements Streami
   }
 
   protected BinanceStreamingService createStreamingService(ProductSubscription subscription) {
-    String path = API_BASE_URI + "stream?streams=" + buildSubscriptionStreams(subscription);
+    String path = getStreamingApiBaseUri() + "stream?streams=" + buildSubscriptionStreams(subscription);
     return new BinanceStreamingService(path, subscription);
   }
 

@@ -1,9 +1,7 @@
 package info.bitrich.xchangestream.binance;
 
-import info.bitrich.xchangestream.core.ProductSubscription;
 import lombok.extern.slf4j.Slf4j;
 import org.knowm.xchange.ExchangeSpecification;
-import org.knowm.xchange.binance.BinanceAuthenticated;
 import org.knowm.xchange.binance.BinanceTimestampFactory;
 import org.knowm.xchange.binance.service.BinanceAccountService;
 import org.knowm.xchange.binance.service.BinanceMarketDataService;
@@ -19,10 +17,8 @@ import org.knowm.xchange.utils.AuthUtils;
 public class ContractBinanceStreamingExchange extends BinanceStreamingExchange {
 
   @Override
-  protected BinanceStreamingService createStreamingService(ProductSubscription subscription) {
-    String path =  "wss://dstream.binance.com/stream?streams=" + buildSubscriptionStreams(subscription);
-    log.info("path is " + path);
-    return new BinanceStreamingService(path, subscription);
+  protected String getStreamingApiBaseUri() {
+    return "wss://dstream.binance.com/";
   }
 
   public ExchangeSpecification getCustomizedExchangeSpecification() {
@@ -50,5 +46,17 @@ public class ContractBinanceStreamingExchange extends BinanceStreamingExchange {
     this.marketDataService = new BinanceMarketDataService(this, binance, getResilienceRegistries());
     this.tradeService = new BinanceTradeService(this, binance, getResilienceRegistries());
     this.accountService = new BinanceAccountService(this, binance, getResilienceRegistries());
+  }
+
+  @Override
+  protected void initConcreteStreamService() {
+    streamingMarketDataService =
+        new BinanceStreamingMarketDataService(
+            streamingService,
+            (BinanceMarketDataService) marketDataService,
+            onApiCall,
+            orderBookUpdateFrequencyParameter);
+    streamingAccountService = new BinanceStreamingAccountService(userDataStreamingService);
+    streamingTradeService = new ContractBinanceStreamingTradeService(userDataStreamingService);
   }
 }

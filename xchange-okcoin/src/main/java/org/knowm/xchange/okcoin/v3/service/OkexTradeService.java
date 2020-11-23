@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.knowm.xchange.currency.Currency;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.dto.Order.OrderType;
+import org.knowm.xchange.dto.TimeInForce;
 import org.knowm.xchange.dto.marketdata.Trades.TradeSortType;
 import org.knowm.xchange.dto.trade.LimitOrder;
 import org.knowm.xchange.dto.trade.OpenOrders;
@@ -54,7 +55,7 @@ public class OkexTradeService extends OkexTradeServiceRaw implements TradeServic
     // 0: Normal limit order (Unfilled and 0 represent normal limit order) 1: Post only 2: Fill Or
     // Kill 3: Immediatel Or Cancel
     OrderPlacementType orderType =
-        o.hasFlag(OkexOrderFlags.POST_ONLY)
+        (o.hasFlag(OkexOrderFlags.POST_ONLY) || o.hasFlag(TimeInForce.GTX))
             ? OrderPlacementType.post_only
             : OrderPlacementType.normal;
 

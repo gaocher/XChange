@@ -25,7 +25,7 @@ public class LimitOrder extends Order implements Comparable<LimitOrder> {
   private static final long serialVersionUID = -5166848178471347540L;
 
   /** The limit price */
-  protected final BigDecimal limitPrice;
+  protected BigDecimal limitPrice;
 
   /**
    * @param type Either BID (buying) or ASK (selling)
@@ -166,6 +166,10 @@ public class LimitOrder extends Order implements Comparable<LimitOrder> {
   public BigDecimal getLimitPrice() {
 
     return limitPrice;
+  }
+
+  public void setLimitPrice(BigDecimal limitPrice) {
+    this.limitPrice = limitPrice;
   }
 
   @Override

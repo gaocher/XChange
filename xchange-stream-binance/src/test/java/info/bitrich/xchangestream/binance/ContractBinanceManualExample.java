@@ -30,11 +30,11 @@ public class ContractBinanceManualExample {
     String apiKey = System.getProperty("binance-api-key");
     String apiSecret = System.getProperty("binance-api-secret");
 
-//    apiKey = "9cxwWaYAEcvVRqYrLoCNKwjBgB2ipzPUk0rrJmgDJeaIJhLVnz9p37ljWoeAQVNb";
-//    apiSecret = "acJsbXrAcGhhhQbuSkbCdWwjz1SEWZN3LrK8EznWZtrWseX00EZ7D70VCueP2DGG";
+    apiKey = "9cxwWaYAEcvVRqYrLoCNKwjBgB2ipzPUk0rrJmgDJeaIJhLVnz9p37ljWoeAQVNb";
+    apiSecret = "acJsbXrAcGhhhQbuSkbCdWwjz1SEWZN3LrK8EznWZtrWseX00EZ7D70VCueP2DGG";
 
-    apiKey = "Mpdsdb8BxDgW17AhqderPtykHJyGRnyRzKJpbkRqxgyNVAqOHsiHvVDhFYRCmatv";
-    apiSecret = "EdP5cyOmWn5jKONuL8TVVizm9WUJfqDAAKK8bTdaj5sBXFnUDg3Flc8NBd7LicTL";
+//    apiKey = "Mpdsdb8BxDgW17AhqderPtykHJyGRnyRzKJpbkRqxgyNVAqOHsiHvVDhFYRCmatv";
+//    apiSecret = "EdP5cyOmWn5jKONuL8TVVizm9WUJfqDAAKK8bTdaj5sBXFnUDg3Flc8NBd7LicTL";
     ExchangeSpecification spec =
         StreamingExchangeFactory.INSTANCE
             .createExchange(ContractBinanceStreamingExchange.class.getName())
@@ -52,9 +52,10 @@ public class ContractBinanceManualExample {
         ProductSubscription.create()
 //            .addTicker(CurrencyPair.ETH_BTC)
 //            .addTicker(CurrencyPair.LTC_BTC)
-            .addOrderbook(currencyPair)
-            .addTrades(currencyPair)
-            .addMarkPrice(currencyPair)
+//            .addOrderbook(currencyPair)
+//            .addTrades(currencyPair)
+//            .addMarkPrice(currencyPair)
+            .addOrders(currencyPair)
             .build();
 
     long start = System.currentTimeMillis();
@@ -101,6 +102,10 @@ public class ContractBinanceManualExample {
     exchange.connect(subscription).blockingAwait();
     LOG.info("Subscribing public channels");
 
+    exchange.getStreamingTradeService().getOrderChanges().subscribe(order -> {
+      LOG.info("order is {}", order);
+    });
+
 //    Disposable tickers =
 //        exchange
 //            .getStreamingMarketDataService()
@@ -111,19 +116,19 @@ public class ContractBinanceManualExample {
 //                },
 //                throwable -> LOG.error("ERROR in getting ticker: ", throwable));
 
-    Disposable trades =
-        exchange
-            .getStreamingMarketDataService()
-            .getTrades(currencyPair)
-            .subscribe(
-                trade -> {
-                  LOG.info("Trade: {}", trade);
-                });
-
-    exchange.getStreamingMarketDataService().getMarkPrice(currencyPair)
-        .subscribe(binanceMarkPrice -> {
-          LOG.info("binanceMarkPrice: {}", binanceMarkPrice);
-        });
+//    Disposable trades =
+//        exchange
+//            .getStreamingMarketDataService()
+//            .getTrades(currencyPair)
+//            .subscribe(
+//                trade -> {
+//                  LOG.info("Trade: {}", trade);
+//                });
+//
+//    exchange.getStreamingMarketDataService().getMarkPrice(currencyPair)
+//        .subscribe(binanceMarkPrice -> {
+//          LOG.info("binanceMarkPrice: {}", binanceMarkPrice);
+//        });
 
     Disposable orderChanges = null;
     Disposable userTrades = null;
@@ -171,7 +176,7 @@ public class ContractBinanceManualExample {
 //    }
 //
 
-    Disposable orderbooks = orderbooks(currencyPair, exchange, "one");
+//    Disposable orderbooks = orderbooks(currencyPair, exchange, "one");
 //    Thread.sleep(5000);
 //    Disposable orderbooks2 = orderbooks(exchange, "two");
 //
@@ -182,13 +187,13 @@ public class ContractBinanceManualExample {
 //    orderbooks.dispose();
 //    orderbooks2.dispose();
 
-    if (apiKey != null) {
-      orderChanges.dispose();
-      userTrades.dispose();
-      balances.dispose();
-      accountInfo.dispose();
-      executionReports.dispose();
-    }
+//    if (apiKey != null) {
+//      orderChanges.dispose();
+//      userTrades.dispose();
+//      balances.dispose();
+//      accountInfo.dispose();
+//      executionReports.dispose();
+//    }
 
 //    exchange.disconnect().blockingAwait();
   }

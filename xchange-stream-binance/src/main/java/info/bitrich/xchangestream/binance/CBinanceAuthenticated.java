@@ -521,7 +521,7 @@ public interface CBinanceAuthenticated extends CBinance, BinanceAuthenticated {
    * @throws IOException
    */
   @POST
-  @Path("/dapi/v1/userDataStream")
+  @Path("/dapi/v1/listenKey")
   BinanceListenKey startUserDataStream(@HeaderParam(X_MBX_APIKEY) String apiKey)
       throws IOException, BinanceException;
 
@@ -535,7 +535,7 @@ public interface CBinanceAuthenticated extends CBinance, BinanceAuthenticated {
    * @throws IOException
    */
   @PUT
-  @Path("/dapi/v1/userDataStream?listenKey={listenKey}")
+  @Path("/dapi/v1/listenKey?listenKey={listenKey}")
   Map<?, ?> keepAliveUserDataStream(
       @HeaderParam(X_MBX_APIKEY) String apiKey, @PathParam("listenKey") String listenKey)
       throws IOException, BinanceException;
@@ -550,7 +550,7 @@ public interface CBinanceAuthenticated extends CBinance, BinanceAuthenticated {
    * @throws IOException
    */
   @DELETE
-  @Path("/dapi/v1/userDataStream?listenKey={listenKey}")
+  @Path("/dapi/v1/listenKey?listenKey={listenKey}")
   Map<?, ?> closeUserDataStream(
       @HeaderParam(X_MBX_APIKEY) String apiKey, @PathParam("listenKey") String listenKey)
       throws IOException, BinanceException;

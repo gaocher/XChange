@@ -88,11 +88,11 @@ public class BinanceManualExample {
                   e -> LOG.error("Error in balance stream", e));
 
       // Level 2 (exchange-specific) APIs
-      executionReports =
-          exchange
-              .getStreamingTradeService()
-              .getRawExecutionReports()
-              .subscribe(report -> LOG.info("Subscriber got execution report: {}", report));
+//      executionReports =
+//          exchange
+//              .getStreamingTradeService()
+//              .getRawExecutionReports()
+//              .subscribe(report -> LOG.info("Subscriber got execution report: {}", report));
       accountInfo =
           exchange
               .getStreamingAccountService()
@@ -119,7 +119,7 @@ public class BinanceManualExample {
       userTrades.dispose();
       balances.dispose();
       accountInfo.dispose();
-      executionReports.dispose();
+//      executionReports.dispose();
     }
 
     exchange.disconnect().blockingAwait();
