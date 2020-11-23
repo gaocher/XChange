@@ -56,7 +56,10 @@ public class ContractBinanceStreamingTradeService implements BinanceStreamingTra
 
   @Override
   public Observable<Order> getOrderChanges(CurrencyPair currencyPair, Object... args) {
-    return getOrderChanges().filter(oc -> currencyPair.equals(oc.getCurrencyPair()));
+    if (currencyPair == null) {
+      return getOrderChanges();
+    }
+    return getOrderChanges().filter(oc -> currencyPair.equals(oc.getInstrument()));
   }
 
   @Override
