@@ -16,6 +16,8 @@ import org.knowm.xchange.binance.dto.BinanceException;
 import org.knowm.xchange.binance.dto.trade.BinanceNewOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceTrade;
+import org.knowm.xchange.binance.dto.trade.NewOrderResponseType;
+import org.knowm.xchange.binance.dto.trade.OrderStatus;
 import org.knowm.xchange.binance.dto.trade.OrderType;
 import org.knowm.xchange.client.ResilienceRegistries;
 import org.knowm.xchange.currency.Currency;
@@ -152,7 +154,14 @@ public class BinanceTradeService extends BinanceTradeServiceRaw implements Trade
               limitPrice,
               getClientOrderId(order),
               stopPrice,
-              null);
+              null,
+              NewOrderResponseType.RESULT);
+      if (newOrder.status == OrderStatus.EXPIRED) {
+        return null;
+      }
+      if (newOrder.status != OrderStatus.NEW) {
+        LOG.info("order status not new for id {} status {}", newOrder.orderId, newOrder.status);
+      }
       return Long.toString(newOrder.orderId);
     } catch (BinanceException e) {
       throw BinanceErrorAdapter.adapt(e);

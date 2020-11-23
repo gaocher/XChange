@@ -16,6 +16,7 @@ import org.knowm.xchange.binance.dto.trade.BinanceListenKey;
 import org.knowm.xchange.binance.dto.trade.BinanceNewOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceTrade;
+import org.knowm.xchange.binance.dto.trade.NewOrderResponseType;
 import org.knowm.xchange.binance.dto.trade.OrderSide;
 import org.knowm.xchange.binance.dto.trade.OrderType;
 import org.knowm.xchange.client.ResilienceRegistries;
@@ -58,7 +59,8 @@ public class BinanceTradeServiceRaw extends BinanceBaseService {
       BigDecimal price,
       String newClientOrderId,
       BigDecimal stopPrice,
-      BigDecimal icebergQty)
+      BigDecimal icebergQty,
+      NewOrderResponseType newOrderResponseType)
       throws IOException, BinanceException {
     return decorateApiCall(
             () ->
@@ -72,6 +74,7 @@ public class BinanceTradeServiceRaw extends BinanceBaseService {
                     newClientOrderId,
                     stopPrice,
                     icebergQty,
+                    newOrderResponseType,
                     getRecvWindow(),
                     getTimestampFactory(),
                     apiKey,

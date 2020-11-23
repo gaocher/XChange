@@ -16,12 +16,24 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import org.knowm.xchange.binance.dto.BinanceException;
-import org.knowm.xchange.binance.dto.account.*;
+import org.knowm.xchange.binance.dto.account.AssetDetailResponse;
+import org.knowm.xchange.binance.dto.account.AssetDividendResponse;
+import org.knowm.xchange.binance.dto.account.AssetDribbletLogResponse;
+import org.knowm.xchange.binance.dto.account.BinanceAccountInformation;
+import org.knowm.xchange.binance.dto.account.BinanceContractBalance;
+import org.knowm.xchange.binance.dto.account.BinanceContractPosition;
+import org.knowm.xchange.binance.dto.account.DepositAddress;
+import org.knowm.xchange.binance.dto.account.DepositList;
+import org.knowm.xchange.binance.dto.account.TransferHistoryResponse;
+import org.knowm.xchange.binance.dto.account.TransferSubUserHistory;
+import org.knowm.xchange.binance.dto.account.WithdrawList;
+import org.knowm.xchange.binance.dto.account.WithdrawRequest;
 import org.knowm.xchange.binance.dto.trade.BinanceCancelledOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceListenKey;
 import org.knowm.xchange.binance.dto.trade.BinanceNewOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceTrade;
+import org.knowm.xchange.binance.dto.trade.NewOrderResponseType;
 import org.knowm.xchange.binance.dto.trade.OrderSide;
 import org.knowm.xchange.binance.dto.trade.OrderType;
 import org.knowm.xchange.dto.TimeInForce;
@@ -66,6 +78,7 @@ public interface BinanceAuthenticated extends Binance {
       @FormParam("newClientOrderId") String newClientOrderId,
       @FormParam("stopPrice") BigDecimal stopPrice,
       @FormParam("icebergQty") BigDecimal icebergQty,
+      @FormParam("newOrderRespType") NewOrderResponseType newOrderResponseType,
       @FormParam("recvWindow") Long recvWindow,
       @FormParam("timestamp") SynchronizedValueFactory<Long> timestamp,
       @HeaderParam(X_MBX_APIKEY) String apiKey,

@@ -34,6 +34,7 @@ import org.knowm.xchange.binance.dto.trade.BinanceListenKey;
 import org.knowm.xchange.binance.dto.trade.BinanceNewOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceOrder;
 import org.knowm.xchange.binance.dto.trade.BinanceTrade;
+import org.knowm.xchange.binance.dto.trade.NewOrderResponseType;
 import org.knowm.xchange.binance.dto.trade.OrderSide;
 import org.knowm.xchange.binance.dto.trade.OrderType;
 import org.knowm.xchange.dto.TimeInForce;
@@ -68,6 +69,7 @@ public interface CBinanceAuthenticated extends CBinance, BinanceAuthenticated {
    * @throws IOException
    * @throws BinanceException
    */
+  @Override
   BinanceNewOrder newOrder(
       @FormParam("symbol") String symbol,
       @FormParam("side") OrderSide side,
@@ -78,6 +80,7 @@ public interface CBinanceAuthenticated extends CBinance, BinanceAuthenticated {
       @FormParam("newClientOrderId") String newClientOrderId,
       @FormParam("stopPrice") BigDecimal stopPrice,
       @FormParam("icebergQty") BigDecimal icebergQty,
+      @FormParam("newOrderRespType") NewOrderResponseType newOrderResponseType,
       @FormParam("recvWindow") Long recvWindow,
       @FormParam("timestamp") SynchronizedValueFactory<Long> timestamp,
       @HeaderParam(X_MBX_APIKEY) String apiKey,
