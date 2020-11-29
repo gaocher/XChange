@@ -30,4 +30,12 @@ public class DefaultCancelOrderByCurrencyPairAndIdParams
   public String getOrderId() {
     return orderId;
   }
+
+  @Override
+  public String toString() {
+    return "DefaultCancelOrderByCurrencyPairAndIdParams{" +
+        "currencyPair=" + currencyPair +
+        ", orderId='" + orderId + '\'' +
+        '}';
+  }
 }
